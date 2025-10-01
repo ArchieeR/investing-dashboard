@@ -7,6 +7,8 @@ export type AssetType =
   | 'Fund'
   | 'Other';
 
+export type Exchange = 'LSE' | 'NYSE' | 'NASDAQ' | 'AMS' | 'XETRA' | 'XC' | 'VI' | 'Other';
+
 export interface Holding {
   id: string;
   section: string;
@@ -14,12 +16,20 @@ export interface Holding {
   assetType: AssetType;
   name: string;
   ticker: string;
+  exchange: Exchange;
   account: string;
   price: number;
   qty: number;
   include: boolean;
   targetPct?: number;
   avgCost?: number;
+  livePrice?: number;
+  livePriceUpdated?: Date;
+  dayChange?: number;
+  dayChangePercent?: number;
+  originalLivePrice?: number;
+  originalCurrency?: string;
+  conversionRate?: number;
 }
 
 export type TradeType = 'buy' | 'sell';
@@ -44,6 +54,45 @@ export interface Settings {
   currency: string;
   lockTotal: boolean;
   lockedTotal?: number;
+  targetPortfolioValue?: number; // Target portfolio value for planning/targets
+  enableLivePrices: boolean;
+  livePriceUpdateInterval: number; // minutes
+  visibleColumns: VisibleColumns;
+}
+
+export interface VisibleColumns {
+  section: boolean;
+  theme: boolean;
+  assetType: boolean;
+  name: boolean;
+  ticker: boolean;
+  exchange: boolean;
+  account: boolean;
+  price: boolean;
+  livePrice: boolean;
+  avgCost: boolean;
+  qty: boolean;
+  value: boolean;
+  liveValue: boolean;
+  costBasis: boolean;
+  dayChange: boolean;
+  dayChangePercent: boolean;
+  pctOfPortfolio: boolean;
+  pctOfSection: boolean;
+  pctOfTheme: boolean;
+  targetPct: boolean;
+  targetDelta: boolean;
+  performance1d: boolean;
+  performance2d: boolean;
+  performance3d: boolean;
+  performance1w: boolean;
+  performance1m: boolean;
+  performance6m: boolean;
+  performanceYtd: boolean;
+  performance1y: boolean;
+  performance2y: boolean;
+  include: boolean;
+  actions: boolean;
 }
 
 export interface BudgetLimit {
@@ -58,14 +107,20 @@ export interface Budgets {
   themes: Record<string, BudgetLimit>;
 }
 
+export type PortfolioType = 'actual' | 'draft';
+
 export interface Portfolio {
   id: string;
   name: string;
+  type: PortfolioType;
+  parentId?: string; // For draft portfolios, reference to the actual portfolio
   lists: Lists;
   holdings: Holding[];
   settings: Settings;
   budgets: Budgets;
   trades: Trade[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Filters {
@@ -96,29 +151,76 @@ const generateId = (): string => {
 
 export const createEmptyLists = (): Lists => ({
   sections: ['Core', 'Satellite', 'Cash'],
-  themes: ['All'],
+  themes: ['All', 'Cash'],
   accounts: ['Brokerage'],
-  themeSections: { All: 'Core' },
+  themeSections: { All: 'Core', Cash: 'Cash' },
 });
 
-export const createEmptyPortfolio = (id: string, name: string): Portfolio => ({
+export const createDefaultVisibleColumns = (): VisibleColumns => ({
+  section: true,
+  theme: true,
+  assetType: true,
+  name: true,
+  ticker: true,
+  exchange: true,
+  account: true,
+  price: false, // Hide manual price - rely on live prices
+  livePrice: true,
+  avgCost: true,
+  qty: true,
+  value: false, // Hide manual value - use live value
+  liveValue: true,
+  costBasis: false,
+  dayChange: true,
+  dayChangePercent: true,
+  pctOfPortfolio: true,
+  pctOfSection: false,
+  pctOfTheme: true,
+  targetPct: true,
+  targetDelta: true,
+  performance1d: false,
+  performance2d: false,
+  performance3d: false,
+  performance1w: false,
+  performance1m: false,
+  performance6m: false,
+  performanceYtd: false,
+  performance1y: false,
+  performance2y: false,
+  include: true,
+  actions: true,
+});
+
+export const createEmptyPortfolio = (
+  id: string, 
+  name: string, 
+  type: PortfolioType = 'actual',
+  parentId?: string
+): Portfolio => ({
   id,
   name,
+  type,
+  parentId,
   lists: createEmptyLists(),
   holdings: [],
   settings: {
     currency: 'GBP',
     lockTotal: false,
+    enableLivePrices: true,
+    livePriceUpdateInterval: 10, // 10 minutes to reduce flickering
+    visibleColumns: createDefaultVisibleColumns(),
   },
   budgets: { sections: {}, accounts: {}, themes: {} },
   trades: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
 });
 
 export const createInitialState = (): AppState => {
   const portfolios = [
-    createEmptyPortfolio('portfolio-1', 'Main Portfolio'),
-    createEmptyPortfolio('portfolio-2', 'Family ISA'),
-    createEmptyPortfolio('portfolio-3', 'Play Portfolio'),
+    createEmptyPortfolio('portfolio-1', 'Main Portfolio', 'actual'),
+    createEmptyPortfolio('portfolio-2', 'ISA Portfolio', 'actual'),
+    createEmptyPortfolio('portfolio-3', 'SIPP Portfolio', 'actual'),
   ];
 
   return {
@@ -144,6 +246,7 @@ export const createHolding = (overrides: Partial<Holding> = {}): Holding => ({
   assetType: overrides.assetType ?? 'ETF',
   name: overrides.name ?? '',
   ticker: overrides.ticker ?? '',
+  exchange: overrides.exchange ?? 'LSE',
   account: overrides.account ?? 'Brokerage',
   price: overrides.price ?? 0,
   qty: overrides.qty ?? 0,

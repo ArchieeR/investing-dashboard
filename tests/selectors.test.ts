@@ -17,11 +17,16 @@ const createHolding = (overrides: Partial<Holding>): Holding => ({
   assetType: overrides.assetType ?? 'ETF',
   name: overrides.name ?? 'Test Asset',
   ticker: overrides.ticker ?? 'TEST',
+  exchange: overrides.exchange ?? 'LSE',
   account: overrides.account ?? 'ISA',
   price: overrides.price ?? 0,
   qty: overrides.qty ?? 0,
   include: overrides.include ?? true,
   targetPct: overrides.targetPct,
+  avgCost: overrides.avgCost,
+  livePrice: overrides.livePrice,
+  dayChange: overrides.dayChange,
+  dayChangePercent: overrides.dayChangePercent,
 });
 
 const buildPortfolio = (holdings: Holding[]) => {
@@ -111,5 +116,70 @@ describe('portfolio selectors', () => {
     expect(derived.value).toBe(0);
     expect(derived.targetValueDiff).toBeUndefined();
     expect(derived.targetPctDiff).toBeUndefined();
+  });
+
+  it('calculates profit/loss data when avgCost is available', () => {
+    const portfolio = buildPortfolio([
+      createHolding({ 
+        id: '1', 
+        price: 100, 
+        livePrice: 120, 
+        avgCost: 90, 
+        qty: 10, 
+        include: true,
+        dayChange: 5,
+        dayChangePercent: 4.35
+      }),
+    ]);
+
+    const derived = selectHoldingsWithDerived(portfolio);
+    const profitLoss = derived[0].profitLoss;
+    
+    expect(profitLoss).toBeDefined();
+    expect(profitLoss!.costBasis).toBe(900); // 90 * 10
+    expect(profitLoss!.marketValue).toBe(1200); // 120 * 10
+    expect(profitLoss!.totalGain).toBe(300); // 1200 - 900
+    expect(profitLoss!.totalGainPercent).toBe(33.33); // (300 / 900) * 100, rounded
+    expect(profitLoss!.dayChangeValue).toBe(50); // 5 * 10
+    expect(profitLoss!.dayChangePercent).toBe(4.35);
+  });
+
+  it('omits profit/loss data when avgCost is not available', () => {
+    const portfolio = buildPortfolio([
+      {
+        id: '1',
+        section: 'Core',
+        theme: 'Equities',
+        assetType: 'ETF',
+        name: 'Test Asset',
+        ticker: 'TEST',
+        exchange: 'LSE',
+        account: 'ISA',
+        price: 100,
+        livePrice: 120,
+        qty: 10,
+        include: true,
+        // avgCost is explicitly undefined
+        avgCost: undefined,
+      },
+    ]);
+
+    const derived = selectHoldingsWithDerived(portfolio);
+    expect(derived[0].profitLoss).toBeUndefined();
+  });
+
+  it('omits profit/loss data when quantity is zero', () => {
+    const portfolio = buildPortfolio([
+      createHolding({ 
+        id: '1', 
+        price: 100, 
+        avgCost: 90, 
+        qty: 0, 
+        include: true
+      }),
+    ]);
+
+    const derived = selectHoldingsWithDerived(portfolio);
+    expect(derived[0].profitLoss).toBeUndefined();
   });
 });

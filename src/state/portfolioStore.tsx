@@ -4,9 +4,11 @@ import {
   createInitialState,
   getActivePortfolio,
   createEmptyPortfolio,
+  createDefaultVisibleColumns,
   type AppState,
   type Holding,
   type Portfolio,
+  type PortfolioType,
   type BudgetLimit,
   type Lists,
   type Trade,
@@ -20,16 +22,22 @@ import {
   selectBudgetRemaining,
   selectHoldingsWithDerived,
   selectTotalValue,
+  selectTargetPortfolioValue,
   type BreakdownEntry,
   type HoldingDerived,
 } from './selectors';
 import { calculateCashBufferQty, roundToPennies } from '../utils/calculations';
 import type { HoldingCsvRow } from '../utils/csv';
+import {
+  preserveThemeRatiosOnSectionChange,
+  preserveHoldingRatiosOnThemeChange,
+  calculateSectionCurrentPercent,
+  calculateThemeCurrentPercent,
+} from '../utils/percentagePreservation';
 
 const INITIAL_STATE = (): AppState => {
-  const loaded = loadState() ?? createInitialState();
-  const portfolios = loaded.portfolios.map(ensureCashPortfolio);
-  return { ...loaded, portfolios };
+  // Start with default state, we'll load from storage asynchronously
+  return createInitialState();
 };
 
 const generatePortfolioId = (): string => {
@@ -96,8 +104,9 @@ export type PortfolioAction =
   | { type: 'set-total'; total: number }
   | { type: 'set-filter'; key: keyof AppState['filters']; value?: string }
   | { type: 'set-budget'; domain: keyof Portfolio['budgets']; key: string; limit?: BudgetLimit }
+  | { type: 'set-holding-target-percent'; holdingId: string; targetPct?: number }
   | { type: 'set-theme-section'; theme: string; section?: string }
-  | { type: 'add-list-item'; domain: Exclude<keyof Lists, 'themeSections'>; value: string }
+  | { type: 'add-list-item'; domain: Exclude<keyof Lists, 'themeSections'>; value: string; section?: string }
   | { type: 'rename-list-item'; domain: Exclude<keyof Lists, 'themeSections'>; previous: string; next: string }
   | { type: 'remove-list-item'; domain: Exclude<keyof Lists, 'themeSections'>; value: string }
   | { type: 'reorder-list'; domain: Exclude<keyof Lists, 'themeSections'>; from: number; to: number }
@@ -110,10 +119,16 @@ export type PortfolioAction =
   | { type: 'import-trades'; trades: { ticker: string; name?: string; type: TradeType; date: string; price: number; qty: number }[] }
   | { type: 'set-active-portfolio'; id: string }
   | { type: 'rename-portfolio'; id: string; name: string }
-  | { type: 'add-portfolio'; id: string; name?: string }
+  | { type: 'add-portfolio'; id: string; name?: string; owner?: string; type?: PortfolioType; parentId?: string }
   | { type: 'remove-portfolio'; id: string }
+  | { type: 'create-draft-portfolio'; parentId: string; name?: string }
+  | { type: 'promote-draft-to-actual'; draftId: string }
   | { type: 'set-playground-enabled'; enabled: boolean }
-  | { type: 'restore-playground' };
+  | { type: 'restore-playground' }
+  | { type: 'restore-state'; state: AppState }
+  | { type: 'restore-portfolio-backup'; portfolioData: Portfolio }
+  | { type: 'update-portfolio-settings'; settings: Partial<Portfolio['settings']> }
+  | { type: 'update-live-prices'; prices: Map<string, { price: number; change: number; changePercent: number; updated: Date; originalPrice?: number; originalCurrency?: string; conversionRate?: number }> };
 
 const CASH_BUFFER_NAME = 'Cash buffer';
 const CASH_BUFFER_PRICE = 1;
@@ -133,15 +148,22 @@ const ensureCashLists = (lists: Lists): Lists => {
     return next;
   };
 
+  // Ensure Cash section at the end
   const sections = ensureSectionAtEnd(
     lists.sections.includes(CASH_SECTION) ? lists.sections : [...lists.sections, CASH_SECTION],
     CASH_SECTION
   );
 
+  // Ensure Cash theme at the end
+  const themes = ensureSectionAtEnd(
+    lists.themes.includes(CASH_SECTION) ? lists.themes : [...lists.themes, CASH_SECTION],
+    CASH_SECTION
+  );
+
+  // Ensure Cash theme maps to Cash section
   const themeSections = { ...lists.themeSections };
-  if (themeSections[CASH_SECTION]) {
-    // Remove stale mapping if cash was previously a theme.
-    delete themeSections[CASH_SECTION];
+  if (themeSections[CASH_SECTION] !== CASH_SECTION) {
+    themeSections[CASH_SECTION] = CASH_SECTION;
     changed = true;
   }
 
@@ -152,18 +174,77 @@ const ensureCashLists = (lists: Lists): Lists => {
   return {
     ...lists,
     sections,
+    themes,
     themeSections,
   };
 };
 
-const ensureCashPortfolio = (portfolio: Portfolio): Portfolio => {
-  const nextLists = ensureCashLists(portfolio.lists);
-  if (nextLists === portfolio.lists) {
+const ensurePortfolioSettings = (portfolio: Portfolio): Portfolio => {
+  const settings = portfolio.settings;
+  let needsUpdate = false;
+  
+  // Ensure new settings exist with defaults
+  const updatedSettings = { ...settings };
+  
+  if (updatedSettings.enableLivePrices === undefined) {
+    updatedSettings.enableLivePrices = true;
+    needsUpdate = true;
+  }
+  
+  if (updatedSettings.livePriceUpdateInterval === undefined) {
+    updatedSettings.livePriceUpdateInterval = 5;
+    needsUpdate = true;
+  }
+  
+  if (!updatedSettings.visibleColumns) {
+    updatedSettings.visibleColumns = createDefaultVisibleColumns();
+    needsUpdate = true;
+  }
+  
+  if (!needsUpdate) {
     return portfolio;
+  }
+  
+  return {
+    ...portfolio,
+    settings: updatedSettings,
+  };
+};
+
+const ensureCashPortfolio = (portfolio: Portfolio): Portfolio => {
+  const withSettings = ensurePortfolioSettings(portfolio);
+  const nextLists = ensureCashLists(withSettings.lists);
+  
+  // Ensure new portfolio fields exist with defaults
+  let needsPortfolioUpdate = false;
+  const updatedPortfolio = { ...withSettings };
+  
+  if (!updatedPortfolio.type) {
+    updatedPortfolio.type = 'actual';
+    needsPortfolioUpdate = true;
+  }
+  
+  if (!updatedPortfolio.owner) {
+    updatedPortfolio.owner = 'Self';
+    needsPortfolioUpdate = true;
+  }
+  
+  if (!updatedPortfolio.createdAt) {
+    updatedPortfolio.createdAt = new Date();
+    needsPortfolioUpdate = true;
+  }
+  
+  if (!updatedPortfolio.updatedAt) {
+    updatedPortfolio.updatedAt = new Date();
+    needsPortfolioUpdate = true;
+  }
+  
+  if (nextLists === withSettings.lists && !needsPortfolioUpdate) {
+    return updatedPortfolio;
   }
 
   return {
-    ...portfolio,
+    ...updatedPortfolio,
     lists: nextLists,
   };
 };
@@ -175,7 +256,7 @@ const createCashHolding = (portfolio: Portfolio): Holding => {
     name: CASH_BUFFER_NAME,
     price: CASH_BUFFER_PRICE,
     section: CASH_SECTION,
-    theme: portfolio.lists.themes[0] ?? 'All',
+    theme: CASH_SECTION, // Cash has its own theme
     account: defaultAccount,
     avgCost: CASH_BUFFER_PRICE,
   });
@@ -313,8 +394,8 @@ const adjustTotal = (portfolio: Portfolio, total: number): Portfolio => {
     price: CASH_BUFFER_PRICE,
     qty: cashQty,
     include: true,
-    section: existingCash.section || CASH_SECTION,
-    theme: existingCash.theme || portfolio.lists.themes[0] || 'All',
+    section: CASH_SECTION,
+    theme: CASH_SECTION, // Cash has its own theme
     account: existingCash.account || portfolio.lists.accounts[0] || 'Brokerage',
   };
 
@@ -339,11 +420,12 @@ const applyBudgetsAndLock = (portfolio: Portfolio): Portfolio => {
   const portfolioWithThemes =
     alignedHoldings === portfolio.holdings ? portfolio : { ...portfolio, holdings: alignedHoldings };
 
-  if (!portfolioWithThemes.settings.lockTotal || portfolioWithThemes.settings.lockedTotal === undefined) {
-    return portfolioWithThemes;
+  // Apply total locking if enabled
+  if (portfolioWithThemes.settings.lockTotal && portfolioWithThemes.settings.lockedTotal) {
+    return adjustTotal(portfolioWithThemes, portfolioWithThemes.settings.lockedTotal);
   }
 
-  return adjustTotal(portfolioWithThemes, portfolioWithThemes.settings.lockedTotal);
+  return portfolioWithThemes;
 };
 
 export const portfolioReducer = (state: AppState, action: PortfolioAction): AppState => {
@@ -433,6 +515,10 @@ export const portfolioReducer = (state: AppState, action: PortfolioAction): AppS
               : undefined,
         };
 
+        // Get current values for percentage preservation
+        const total = selectTotalValue(portfolio);
+        let updatedPortfolio = portfolio;
+
         if (
           normalized.amount === undefined &&
           normalized.percent === undefined &&
@@ -440,12 +526,41 @@ export const portfolioReducer = (state: AppState, action: PortfolioAction): AppS
         ) {
           delete domainBudgets[action.key];
         } else {
-          if (action.domain === 'themes' && normalized.percentOfSection !== undefined) {
+          // Handle percentage preservation based on domain
+          if (action.domain === 'sections' && normalized.percent !== undefined) {
+            // Section percentage changed - preserve theme ratios within this section
+            const currentSectionBudget = currentBudgets.sections[action.key];
+            const oldSectionPercent = calculateSectionCurrentPercent(currentSectionBudget, total);
+            const newSectionPercent = normalized.percent;
+            
+            if (oldSectionPercent > 0 && newSectionPercent !== oldSectionPercent) {
+              updatedPortfolio = preserveThemeRatiosOnSectionChange(
+                portfolio,
+                action.key,
+                oldSectionPercent,
+                newSectionPercent
+              );
+            }
+          } else if (action.domain === 'themes' && normalized.percentOfSection !== undefined) {
+            // Theme percentage changed - preserve holding ratios within this theme
+            const currentThemeBudget = currentBudgets.themes[action.key];
+            const oldThemePercent = calculateThemeCurrentPercent(currentThemeBudget);
+            const newThemePercent = normalized.percentOfSection;
+            
+            if (oldThemePercent > 0 && newThemePercent !== oldThemePercent) {
+              updatedPortfolio = preserveHoldingRatiosOnThemeChange(
+                portfolio,
+                action.key,
+                oldThemePercent,
+                newThemePercent
+              );
+            }
+
+            // Calculate derived values for theme budgets
             const section = portfolio.lists.themeSections?.[action.key];
             if (section) {
               const normalizedSections = normalizeBudgetCollection(currentBudgets.sections);
               const sectionLimit = normalizedSections[section];
-              const total = selectTotalValue(portfolio);
               const sectionPercent = sectionLimit?.percent ??
                 (sectionLimit?.amount !== undefined && total > 0 ? (sectionLimit.amount / total) * 100 : undefined);
               const sectionAmount = sectionLimit?.amount ??
@@ -467,14 +582,43 @@ export const portfolioReducer = (state: AppState, action: PortfolioAction): AppS
         }
 
         const updated = {
-          ...portfolio,
+          ...updatedPortfolio,
           budgets: {
-            ...currentBudgets,
+            ...updatedPortfolio.budgets,
             [action.domain]: domainBudgets,
           },
         };
 
         return applyBudgetsAndLock(updated);
+      });
+    case 'set-holding-target-percent':
+      return updateActivePortfolio(state, (portfolio) => {
+        const holding = portfolio.holdings.find(h => h.id === action.holdingId);
+        if (!holding) {
+          return portfolio;
+        }
+
+        // Get current holding percentages in this theme for preservation
+        const oldTargetPct = holding.targetPct || 0;
+        const newTargetPct = action.targetPct || 0;
+
+        // Update the specific holding
+        const updatedHoldings = portfolio.holdings.map(h => {
+          if (h.id === action.holdingId) {
+            return {
+              ...h,
+              targetPct: newTargetPct > 0 ? newTargetPct : undefined
+            };
+          }
+          return h;
+        });
+
+        const updatedPortfolio = {
+          ...portfolio,
+          holdings: updatedHoldings
+        };
+
+        return applyBudgetsAndLock(updatedPortfolio);
       });
     case 'set-theme-section':
       return updateActivePortfolio(state, (portfolio) => {
@@ -486,8 +630,20 @@ export const portfolioReducer = (state: AppState, action: PortfolioAction): AppS
           next[action.theme] = action.section;
         }
 
+        // Update all holdings that use this theme to the new section
+        const updatedHoldings = portfolio.holdings.map(holding => {
+          if (holding.theme === action.theme && action.section) {
+            return {
+              ...holding,
+              section: action.section
+            };
+          }
+          return holding;
+        });
+
         const updated: Portfolio = {
           ...portfolio,
+          holdings: updatedHoldings,
           lists: {
             ...portfolio.lists,
             themeSections: next,
@@ -519,7 +675,7 @@ export const portfolioReducer = (state: AppState, action: PortfolioAction): AppS
         list.push(value);
         if (action.domain === 'themes') {
           if (!lists.themeSections[value]) {
-            lists.themeSections[value] = lists.sections[0];
+            lists.themeSections[value] = action.section || lists.sections[0];
           }
         }
 
@@ -745,8 +901,7 @@ export const portfolioReducer = (state: AppState, action: PortfolioAction): AppS
         }
 
         const [item] = list.splice(from, 1);
-        const adjustedTarget = to > from ? to - 1 : to;
-        const normalizedTarget = Math.min(Math.max(adjustedTarget, 0), list.length);
+        const normalizedTarget = Math.min(Math.max(to, 0), list.length);
         list.splice(normalizedTarget, 0, item);
 
         const nextList = domain === 'sections'
@@ -979,12 +1134,81 @@ export const portfolioReducer = (state: AppState, action: PortfolioAction): AppS
       const baseName = action.name?.trim() || 'New Portfolio';
       const existingNames = state.portfolios.map((portfolio) => portfolio.name);
       const finalName = createUniquePortfolioName(existingNames, baseName);
-      const portfolio = ensureCashPortfolio(createEmptyPortfolio(action.id, finalName));
+      const portfolio = ensureCashPortfolio(createEmptyPortfolio(
+        action.id, 
+        finalName, 
+        action.owner || 'Self', 
+        action.type || 'actual',
+        action.parentId
+      ));
 
       return {
         ...state,
         portfolios: [...state.portfolios, portfolio],
         activePortfolioId: portfolio.id,
+        filters: {},
+        playground: { enabled: false },
+      };
+    }
+    case 'create-draft-portfolio': {
+      const parentPortfolio = state.portfolios.find(p => p.id === action.parentId);
+      if (!parentPortfolio) {
+        return state;
+      }
+
+      const baseName = action.name?.trim() || `${parentPortfolio.name} (Draft)`;
+      const existingNames = state.portfolios.map((portfolio) => portfolio.name);
+      const finalName = createUniquePortfolioName(existingNames, baseName);
+      
+      // Create draft by cloning the parent portfolio
+      const draftId = generatePortfolioId();
+      const draftPortfolio: Portfolio = {
+        ...clonePortfolio(parentPortfolio),
+        id: draftId,
+        name: finalName,
+        type: 'draft',
+        parentId: action.parentId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      return {
+        ...state,
+        portfolios: [...state.portfolios, draftPortfolio],
+        activePortfolioId: draftId,
+        filters: {},
+        playground: { enabled: false },
+      };
+    }
+    case 'promote-draft-to-actual': {
+      const draftPortfolio = state.portfolios.find(p => p.id === action.draftId);
+      if (!draftPortfolio || draftPortfolio.type !== 'draft' || !draftPortfolio.parentId) {
+        return state;
+      }
+
+      const parentIndex = state.portfolios.findIndex(p => p.id === draftPortfolio.parentId);
+      if (parentIndex === -1) {
+        return state;
+      }
+
+      // Replace parent with draft data, remove draft
+      const updatedParent: Portfolio = {
+        ...draftPortfolio,
+        id: draftPortfolio.parentId,
+        name: state.portfolios[parentIndex].name, // Keep original name
+        type: 'actual',
+        parentId: undefined,
+        updatedAt: new Date(),
+      };
+
+      const portfolios = [...state.portfolios];
+      portfolios[parentIndex] = updatedParent;
+      const filteredPortfolios = portfolios.filter(p => p.id !== action.draftId);
+
+      return {
+        ...state,
+        portfolios: filteredPortfolios,
+        activePortfolioId: updatedParent.id,
         filters: {},
         playground: { enabled: false },
       };
@@ -1047,16 +1271,113 @@ export const portfolioReducer = (state: AppState, action: PortfolioAction): AppS
         portfolios,
       };
     }
+    case 'restore-state': {
+      // Replace entire state with loaded state
+      return action.state;
+    }
+    case 'restore-portfolio-backup': {
+      // Replace current portfolio with backup data
+      return updateActivePortfolio(state, () => {
+        const restoredPortfolio = {
+          ...action.portfolioData,
+          id: state.portfolios.find(p => p.id === state.activePortfolioId)?.id || action.portfolioData.id,
+          updatedAt: new Date(),
+        };
+        return ensureCashPortfolio(restoredPortfolio);
+      });
+    }
+    case 'update-portfolio-settings':
+      return updateActivePortfolio(state, (portfolio) => ({
+        ...portfolio,
+        settings: {
+          ...portfolio.settings,
+          ...action.settings,
+        },
+      }));
+    case 'update-live-prices':
+      return updateActivePortfolio(state, (portfolio) => {
+        let hasChanges = false;
+        const updatedHoldings = portfolio.holdings.map((holding) => {
+          const priceData = action.prices.get(holding.ticker);
+          if (priceData && holding.ticker && holding.assetType !== 'Cash') {
+            // Ensure GBX prices are properly converted to GBP for calculations
+            let calculationPrice = priceData.price;
+            
+            console.log(`📊 Processing ${holding.ticker}:`, {
+              originalPrice: priceData.originalPrice,
+              originalCurrency: priceData.originalCurrency,
+              priceDataPrice: priceData.price,
+              currentLivePrice: holding.livePrice,
+              quantity: holding.qty,
+              calculatedValue: holding.qty * (holding.livePrice || holding.price)
+            });
+            
+            if (priceData.originalCurrency === 'GBX' || priceData.originalCurrency === 'GBp') {
+              // If original currency is GBX/GBp (pence), convert to GBP for calculations
+              calculationPrice = priceData.originalPrice * 0.01;
+              console.log(`🔧 Converting ${holding.ticker}: ${priceData.originalPrice}p → £${calculationPrice}`);
+              
+              // Special debugging for ORCP
+              if (holding.ticker === 'ORCP') {
+                console.log(`🚨 ORCP Debug:`, {
+                  originalPrice: priceData.originalPrice,
+                  calculationPrice: calculationPrice,
+                  quantity: holding.qty,
+                  expectedValue: calculationPrice * holding.qty,
+                  priceDataPrice: priceData.price
+                });
+              }
+            } else if (holding.ticker.toUpperCase().endsWith('.L') && (priceData.price > 1000 || priceData.originalPrice > 1000)) {
+              // Fallback: if it's a UK stock and price is suspiciously high, assume it's in pence
+              const priceToConvert = priceData.originalPrice || priceData.price;
+              calculationPrice = priceToConvert * 0.01;
+              console.log(`🚨 Emergency conversion for ${holding.ticker}: ${priceToConvert}p → £${calculationPrice} (currency was: ${priceData.originalCurrency})`);
+            }
+            
+            // Only update if the price has actually changed
+            if (
+              holding.livePrice !== calculationPrice ||
+              holding.dayChange !== priceData.change ||
+              holding.dayChangePercent !== priceData.changePercent
+            ) {
+              hasChanges = true;
+              return {
+                ...holding,
+                livePrice: calculationPrice, // GBP converted price for calculations
+                livePriceUpdated: priceData.updated,
+                dayChange: priceData.change, // GBP converted change for calculations
+                dayChangePercent: priceData.changePercent,
+                originalLivePrice: priceData.originalPrice, // Original price for display
+                originalCurrency: priceData.originalCurrency, // Original currency for display
+                conversionRate: priceData.conversionRate,
+              };
+            }
+          }
+          return holding;
+        });
+
+        // Only return a new portfolio object if there were actual changes
+        if (!hasChanges) {
+          return portfolio;
+        }
+
+        return {
+          ...portfolio,
+          holdings: updatedHoldings,
+        };
+      });
     default:
       return state;
   }
 };
 
 interface PortfolioContextValue {
-  portfolios: Array<{ id: string; name: string }>;
+  portfolios: Array<{ id: string; name: string; type: PortfolioType; owner: string; parentId?: string }>;
+  allPortfolios: Portfolio[];
   portfolio: Portfolio;
   derivedHoldings: HoldingDerived[];
-  totalValue: number;
+  totalValue: number; // Allocated value (sum of live prices × quantities)
+  targetPortfolioValue: number; // Target portfolio value for planning
   filters: AppState['filters'];
   bySection: BreakdownEntry[];
   byAccount: BreakdownEntry[];
@@ -1065,27 +1386,35 @@ interface PortfolioContextValue {
   remaining: ReturnType<typeof selectBudgetRemaining>;
   trades: Trade[];
   setBudget: (domain: keyof Portfolio['budgets'], key: string, limit?: BudgetLimit) => void;
+  setHoldingTargetPercent: (holdingId: string, targetPct?: number) => void;
   setThemeSection: (theme: string, section?: string) => void;
-  addListItem: (domain: Exclude<keyof Lists, 'themeSections'>, value: string) => void;
+  addListItem: (domain: Exclude<keyof Lists, 'themeSections'>, value: string, section?: string) => void;
   renameListItem: (domain: Exclude<keyof Lists, 'themeSections'>, previous: string, next: string) => void;
   removeListItem: (domain: Exclude<keyof Lists, 'themeSections'>, value: string) => void;
   reorderList: (domain: Exclude<keyof Lists, 'themeSections'>, from: number, to: number) => void;
   importHoldings: (rows: HoldingCsvRow[], account?: string) => void;
   setActivePortfolio: (id: string) => void;
   renamePortfolio: (id: string, name: string) => void;
-  addPortfolio: (name?: string) => string;
+  addPortfolio: (name?: string, owner?: string, type?: PortfolioType, parentId?: string) => string;
   removePortfolio: (id: string) => void;
+  createDraftPortfolio: (parentId: string, name?: string) => void;
+  promoteDraftToActual: (draftId: string) => void;
   recordTrade: (holdingId: string, trade: { type: TradeType; date: string; price: number; qty: number }) => void;
   importTrades: (trades: { ticker: string; name?: string; type: TradeType; date: string; price: number; qty: number }[]) => void;
   playground: AppState['playground'];
   setPlaygroundEnabled: (enabled: boolean) => void;
   restorePlayground: () => void;
+  restorePortfolioBackup: (portfolioData: Portfolio) => void;
+  restoreFullBackup: (appState: AppState) => void;
   addHolding: (initial?: Partial<Holding>) => string;
   duplicateHolding: (id: string) => void;
   updateHolding: (id: string, patch: Partial<Holding>) => void;
   deleteHolding: (id: string) => void;
   setTotal: (total: number) => void;
+  setTargetPortfolioValue: (value: number) => void;
   setFilter: (key: keyof AppState['filters'], value?: string) => void;
+  updatePortfolioSettings: (settings: Partial<Portfolio['settings']>) => void;
+  updateLivePrices: (prices: Map<string, { price: number; change: number; changePercent: number; updated: Date; originalPrice?: number; originalCurrency?: string; conversionRate?: number }>) => void;
 }
 
 const PortfolioContext = createContext<PortfolioContextValue | undefined>(undefined);
@@ -1095,6 +1424,7 @@ export const PortfolioProvider: React.FC<React.PropsWithChildren> = ({ children 
   const portfolio = useMemo(() => getActivePortfolio(state), [state]);
   const derivedHoldings = useMemo(() => selectHoldingsWithDerived(portfolio), [portfolio]);
   const totalValue = useMemo(() => selectTotalValue(portfolio), [portfolio]);
+  const targetPortfolioValue = useMemo(() => selectTargetPortfolioValue(portfolio), [portfolio]);
   const bySection = useMemo(() => selectBreakdownBySection(portfolio), [portfolio]);
   const byAccount = useMemo(() => selectBreakdownByAccount(portfolio), [portfolio]);
   const byTheme = useMemo(() => selectBreakdownByTheme(portfolio), [portfolio]);
@@ -1104,13 +1434,75 @@ export const PortfolioProvider: React.FC<React.PropsWithChildren> = ({ children 
     [portfolio]
   );
   const portfoliosSummary = useMemo(
-    () => state.portfolios.map((entry) => ({ id: entry.id, name: entry.name })),
+    () => state.portfolios.map((entry) => ({ 
+      id: entry.id, 
+      name: entry.name, 
+      type: entry.type, 
+      owner: entry.owner,
+      parentId: entry.parentId 
+    })),
     [state.portfolios]
   );
 
+  // Track if we've loaded initial state to prevent premature saves
+  const [hasLoadedInitialState, setHasLoadedInitialState] = React.useState(false);
+
+  // Load state on mount
   useEffect(() => {
-    saveState(state);
-  }, [state]);
+    const loadInitialState = async () => {
+      try {
+        const loaded = await loadState();
+        if (loaded) {
+          console.log('🔍 Loaded data from file:', {
+            portfolios: loaded.portfolios.length,
+            mainPortfolioHoldings: loaded.portfolios[0]?.holdings?.length || 0,
+            firstHolding: loaded.portfolios[0]?.holdings?.[0]?.name || 'none'
+          });
+          
+          // Restore ensureCashPortfolio to ensure data integrity
+          const portfolios = loaded.portfolios.map(ensureCashPortfolio);
+          const loadedState = { ...loaded, portfolios };
+          
+          console.log('🔍 State after processing:', {
+            portfolios: loadedState.portfolios.length,
+            mainPortfolioHoldings: loadedState.portfolios[0]?.holdings?.length || 0,
+            firstHolding: loadedState.portfolios[0]?.holdings?.[0]?.name || 'none'
+          });
+          
+          // Replace the entire state with loaded data
+          dispatch({ type: 'restore-state', state: loadedState });
+        }
+        
+        // Mark that we've completed initial loading (whether we found data or not)
+        setHasLoadedInitialState(true);
+      } catch (error) {
+        console.error('Failed to load initial state:', error);
+        setHasLoadedInitialState(true); // Still mark as loaded to enable saves
+      }
+    };
+    
+    loadInitialState();
+  }, []); // Only run on mount
+
+  useEffect(() => {
+    // Don't save until we've loaded initial state to prevent overwriting saved data
+    if (!hasLoadedInitialState) {
+      console.log('⏳ Skipping save - initial state not loaded yet');
+      return;
+    }
+
+    console.log('💾 Save effect triggered with state:', {
+      portfolios: state.portfolios.length,
+      mainPortfolioHoldings: state.portfolios[0]?.holdings?.length || 0,
+      firstHolding: state.portfolios[0]?.holdings?.[0]?.name || 'none',
+      activePortfolioId: state.activePortfolioId
+    });
+    
+    // Add error handling for save
+    saveState(state).catch(error => {
+      console.error('❌ Save effect failed:', error);
+    });
+  }, [state, hasLoadedInitialState]);
 
   const addHolding = useCallback((initial?: Partial<Holding>) => {
     const holding = createHolding(initial);
@@ -1124,8 +1516,21 @@ export const PortfolioProvider: React.FC<React.PropsWithChildren> = ({ children 
     []
   );
   const setTotal = useCallback((total: number) => dispatch({ type: 'set-total', total }), []);
+  const setTargetPortfolioValue = useCallback(
+    (value: number) => dispatch({ type: 'update-portfolio-settings', settings: { targetPortfolioValue: value } }),
+    []
+  );
   const setFilter = useCallback(
     (key: keyof AppState['filters'], value?: string) => dispatch({ type: 'set-filter', key, value }),
+    []
+  );
+  const updatePortfolioSettings = useCallback(
+    (settings: Partial<Portfolio['settings']>) => dispatch({ type: 'update-portfolio-settings', settings }),
+    []
+  );
+  const updateLivePrices = useCallback(
+    (prices: Map<string, { price: number; change: number; changePercent: number; updated: Date; originalPrice?: number; originalCurrency?: string; conversionRate?: number }>) =>
+      dispatch({ type: 'update-live-prices', prices }),
     []
   );
   const setBudget = useCallback(
@@ -1133,13 +1538,18 @@ export const PortfolioProvider: React.FC<React.PropsWithChildren> = ({ children 
       dispatch({ type: 'set-budget', domain, key, limit }),
     []
   );
+  const setHoldingTargetPercent = useCallback(
+    (holdingId: string, targetPct?: number) =>
+      dispatch({ type: 'set-holding-target-percent', holdingId, targetPct }),
+    []
+  );
   const setThemeSection = useCallback(
     (theme: string, section?: string) => dispatch({ type: 'set-theme-section', theme, section }),
     []
   );
   const addListItem = useCallback(
-    (domain: Exclude<keyof Lists, 'themeSections'>, value: string) =>
-      dispatch({ type: 'add-list-item', domain, value }),
+    (domain: Exclude<keyof Lists, 'themeSections'>, value: string, section?: string) =>
+      dispatch({ type: 'add-list-item', domain, value, section }),
     []
   );
   const renameListItem = useCallback(
@@ -1172,14 +1582,22 @@ export const PortfolioProvider: React.FC<React.PropsWithChildren> = ({ children 
     []
   );
   const addPortfolio = useCallback(
-    (name?: string) => {
+    (name?: string, owner?: string, type?: PortfolioType, parentId?: string) => {
       const id = generatePortfolioId();
-      dispatch({ type: 'add-portfolio', id, name });
+      dispatch({ type: 'add-portfolio', id, name, owner, type, parentId });
       return id;
     },
     []
   );
   const removePortfolio = useCallback((id: string) => dispatch({ type: 'remove-portfolio', id }), []);
+  const createDraftPortfolio = useCallback(
+    (parentId: string, name?: string) => dispatch({ type: 'create-draft-portfolio', parentId, name }),
+    []
+  );
+  const promoteDraftToActual = useCallback(
+    (draftId: string) => dispatch({ type: 'promote-draft-to-actual', draftId }),
+    []
+  );
   const importTrades = useCallback(
     (trades: { ticker: string; name?: string; type: TradeType; date: string; price: number; qty: number }[]) =>
       dispatch({ type: 'import-trades', trades }),
@@ -1190,13 +1608,34 @@ export const PortfolioProvider: React.FC<React.PropsWithChildren> = ({ children 
     []
   );
   const restorePlayground = useCallback(() => dispatch({ type: 'restore-playground' }), []);
+  const restorePortfolioBackup = useCallback(
+    (portfolioData: Portfolio) => dispatch({ type: 'restore-portfolio-backup', portfolioData }),
+    []
+  );
+  
+  const restoreFullBackup = useCallback(
+    (appState: AppState) => {
+      console.log('🔄 Starting restore with data:', {
+        portfolios: appState.portfolios.length,
+        mainPortfolioHoldings: appState.portfolios[0]?.holdings?.length || 0,
+        firstHolding: appState.portfolios[0]?.holdings?.[0]?.name || 'none'
+      });
+      
+      // Just update the state - let the save effect handle saving
+      dispatch({ type: 'restore-state', state: appState });
+      console.log('✅ Backup data restored to state');
+    },
+    []
+  );
 
   const value = useMemo<PortfolioContextValue>(
     () => ({
       portfolios: portfoliosSummary,
+      allPortfolios: state.portfolios,
       portfolio,
       derivedHoldings,
       totalValue,
+      targetPortfolioValue,
       bySection,
       byAccount,
       byTheme,
@@ -1216,21 +1655,32 @@ export const PortfolioProvider: React.FC<React.PropsWithChildren> = ({ children 
       renamePortfolio,
       addPortfolio,
       removePortfolio,
+      createDraftPortfolio,
+      promoteDraftToActual,
       playground: state.playground,
       setPlaygroundEnabled,
       restorePlayground,
+      restorePortfolioBackup,
       addHolding,
       duplicateHolding,
       updateHolding,
       deleteHolding,
       setTotal,
+      setTargetPortfolioValue,
       setFilter,
+      updatePortfolioSettings,
+      updateLivePrices,
       setBudget,
+      setHoldingTargetPercent,
+      restoreFullBackup,
     }),
     [
+      portfoliosSummary,
+      state.portfolios,
       portfolio,
       derivedHoldings,
       totalValue,
+      targetPortfolioValue,
       bySection,
       byAccount,
       byTheme,
@@ -1248,16 +1698,24 @@ export const PortfolioProvider: React.FC<React.PropsWithChildren> = ({ children 
       renamePortfolio,
       addPortfolio,
       removePortfolio,
+      createDraftPortfolio,
+      promoteDraftToActual,
       state.playground,
       setPlaygroundEnabled,
       restorePlayground,
+      restorePortfolioBackup,
       addHolding,
       duplicateHolding,
       updateHolding,
       deleteHolding,
       setTotal,
+      setTargetPortfolioValue,
       setFilter,
+      updatePortfolioSettings,
+      updateLivePrices,
       setBudget,
+      setHoldingTargetPercent,
+      restoreFullBackup,
       remaining,
     ]
   );

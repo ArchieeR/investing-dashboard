@@ -7,7 +7,8 @@
 ## TL;DR
 - **Safest & easiest**: Google Sheets `GOOGLEFINANCE()` → read via Google Sheets API. No scraping, low maintenance.  
 - **Quick & dirty**: Minimal Google Finance **page scrape** on demand with caching and polite delays. Works, but brittle and *not* recommended for production.  
-- **Resilience**: Add a free API fallback (e.g., Alpha Vantage) if Sheets/scrape fails.
+- **Resilience**: Add a free API fallback (e.g., Alpha Vantage) if Sheets/scrape fails.  
+- **Popular alternative**: Yahoo Finance (`yfinance` in Python or `yahoo-finance2` in Node) is a simple and popular choice for personal projects.
 
 > ⚠️ **Terms & legality**: Scraping Google pages may breach ToS and can break without notice. Use for personal experiments only. Don’t redistribute scraped data.
 
@@ -213,8 +214,57 @@ export async function alphaHandler(req: Request, res: Response) {
 
 ---
 
+## Option D — Yahoo Finance (simple, popular)
+
+Yahoo Finance is an unofficial but widely used source for personal projects. It’s easier than Sheets or scraping, offers broad coverage, and provides intraday and short-term historical data. It is not officially supported and may have some delays or lack SLA guarantees.
+
+### Python example with `yfinance`
+
+```python
+import yfinance as yf
+
+# Fetch current price
+ticker = yf.Ticker("AAPL")
+price = ticker.info.get('regularMarketPrice')
+print(f"Current price: {price}")
+
+# Fetch short-term history (1d, 2d, 5d)
+hist_1d = ticker.history(period="1d")
+hist_2d = ticker.history(period="2d")
+hist_5d = ticker.history(period="5d")
+
+print(hist_1d)
+```
+
+### Node.js example with `yahoo-finance2`
+
+```ts
+import yahooFinance from 'yahoo-finance2';
+
+async function fetchPrice(symbol: string) {
+  // symbol example: "AAPL", or "VOD.L" for LSE tickers (note .L suffix)
+  const quote = await yahooFinance.quote(symbol);
+  console.log(`Current price for ${symbol}:`, quote.regularMarketPrice);
+  
+  const history = await yahooFinance.historical(symbol, { period1: '5d' });
+  console.log(`5-day history for ${symbol}:`, history);
+}
+
+fetchPrice('AAPL');
+fetchPrice('VOD.L'); // LSE ticker example
+```
+
+### Notes
+- Use suffixes like `.L` for London Stock Exchange tickers (e.g., `VOD.L`).
+- Pros: easy to use, broad coverage, intraday and historical data available.
+- Cons: unofficial, sometimes delayed data, no formal SLA.
+
+---
+
 ## A unified provider in your app
 Create a provider that tries **Sheets → Scrape → Alpha** in order, returning the first success.
+
+Yahoo Finance can be slotted in as the first or second option depending on your preference (e.g., try Yahoo first for ease, then Sheets, then scrape, then Alpha).
 
 ```ts
 // src/utils/priceProvider.ts
@@ -222,6 +272,14 @@ import { fetchSheetPrices } from './prices';
 
 export async function getPrices(symbols: string[]): Promise<Record<string, number>> {
   const tryFns = [
+    // Example: Yahoo Finance could be tried here first or second
+    async () => {
+      // pseudo-code for Yahoo Finance fetch
+      // const map = await fetchYahooPrices(symbols);
+      // if (Object.keys(map).length) return map;
+      // throw new Error('yahoo: none found');
+      throw new Error('yahoo not implemented');
+    },
     async () => {
       const map = await fetchSheetPrices();
       const out: Record<string, number> = {};
@@ -273,4 +331,4 @@ A: Prefer the `SYMBOL:EXCHANGE` format for Google (e.g., `VUSA:LON`). Maintain a
 ---
 
 ### Summary
-For a personal, on‑demand portfolio tool: **use a Google Sheets bridge** for prices; optionally add **a light scraper** and **Alpha Vantage fallback**. Keep calls manual (Refresh button), cache for 30–60s, and expect occasional hiccups without breaking the app.
+For a personal, on‑demand portfolio tool: **use a Google Sheets bridge** for prices; optionally add **a light scraper**, **Yahoo Finance**, and **Alpha Vantage fallback**. Keep calls manual (Refresh button), cache for 30–60s, and expect occasional hiccups without breaking the app.

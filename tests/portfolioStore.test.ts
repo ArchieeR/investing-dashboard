@@ -344,7 +344,7 @@ describe('portfolio reducer', () => {
       to: 2,
     });
 
-    expect(getActivePortfolio(reordered).lists.sections).toEqual(['Satellite', 'Core', 'Growth', 'Cash']);
+    expect(getActivePortfolio(reordered).lists.sections).toEqual(['Satellite', 'Growth', 'Core', 'Cash']);
   });
 
   it('ignores out-of-range reorders', () => {

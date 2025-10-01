@@ -4,30 +4,75 @@ import { usePortfolio } from '../state/portfolioStore';
 const containerStyle: CSSProperties = {
   display: 'flex',
   flexWrap: 'wrap',
-  gap: '0.6rem',
+  gap: '0.5rem',
   alignItems: 'center',
 };
 
-const selectStyle: CSSProperties = {
-  padding: '0.45rem 0.75rem',
-  borderRadius: '0.6rem',
-  border: '1px solid #cbd5f5',
-  fontSize: '0.95rem',
+const portfolioTabsStyle: CSSProperties = {
+  display: 'flex',
+  gap: '0.25rem',
+  alignItems: 'center',
+  padding: '0.25rem',
+  backgroundColor: '#f1f5f9',
+  borderRadius: '0.75rem',
+  border: '1px solid #e2e8f0',
 };
 
-const buttonStyle: CSSProperties = {
-  padding: '0.45rem 0.9rem',
-  borderRadius: '0.6rem',
-  border: '1px solid #cbd5f5',
+const portfolioButtonStyle: CSSProperties = {
+  padding: '0.5rem 1rem',
+  borderRadius: '0.5rem',
+  border: 'none',
+  background: 'transparent',
+  color: '#64748b',
+  cursor: 'pointer',
+  fontSize: '0.875rem',
+  fontWeight: 500,
+  transition: 'all 0.2s ease',
+  position: 'relative',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem',
+};
+
+const activePortfolioButtonStyle: CSSProperties = {
+  ...portfolioButtonStyle,
   background: '#fff',
   color: '#0f172a',
+  fontWeight: 600,
+  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+};
+
+const portfolioCountStyle: CSSProperties = {
+  fontSize: '0.75rem',
+  color: '#94a3af',
+  fontWeight: 400,
+};
+
+const actionButtonStyle: CSSProperties = {
+  padding: '0.5rem 1rem',
+  borderRadius: '0.5rem',
+  border: '1px solid #d1d5db',
+  background: '#fff',
+  color: '#374151',
   cursor: 'pointer',
+  fontSize: '0.875rem',
+  fontWeight: 500,
+};
+
+const addButtonStyle: CSSProperties = {
+  ...actionButtonStyle,
+  background: '#2563eb',
+  borderColor: '#2563eb',
+  color: '#fff',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem',
 };
 
 const destructiveButtonStyle: CSSProperties = {
-  ...buttonStyle,
-  borderColor: '#f97316',
-  color: '#c2410c',
+  ...actionButtonStyle,
+  borderColor: '#dc2626',
+  color: '#dc2626',
 };
 
 const PortfolioSwitcher = () => {
@@ -38,6 +83,8 @@ const PortfolioSwitcher = () => {
     renamePortfolio,
     addPortfolio,
     removePortfolio,
+    createDraftPortfolio,
+    promoteDraftToActual,
   } = usePortfolio();
   const [draftName, setDraftName] = useState(portfolio.name);
   const [isEditing, setIsEditing] = useState(false);
@@ -70,34 +117,84 @@ const PortfolioSwitcher = () => {
     setPendingEditId(newId);
   };
 
+  const handleCreateDraft = () => {
+    if (portfolio.type === 'actual') {
+      createDraftPortfolio(portfolio.id);
+    }
+  };
+
+  const handlePromoteDraft = () => {
+    if (portfolio.type === 'draft' && window.confirm('Replace actual portfolio with this draft? This cannot be undone.')) {
+      promoteDraftToActual(portfolio.id);
+    }
+  };
+
   const handleDelete = () => {
     if (portfolios.length <= 1) {
       return;
     }
 
-    if (window.confirm(`Remove “${portfolio.name}”? This cannot be undone.`)) {
+    if (window.confirm(`Remove "${portfolio.name}"? This cannot be undone.`)) {
       removePortfolio(portfolio.id);
     }
   };
 
   return (
     <div style={containerStyle}>
-      <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem' }}>
-        Portfolio
-        <select
-          value={portfolio.id}
-          onChange={(event) => setActivePortfolio(event.target.value)}
-          style={selectStyle}
-        >
-          {portfolios.map((entry) => (
-            <option key={entry.id} value={entry.id}>
-              {entry.name}
-            </option>
-          ))}
-        </select>
-      </label>
+      <div style={portfolioTabsStyle}>
+        {portfolios.map((entry) => {
+          const isActive = entry.id === portfolio.id;
+          const currentPortfolio = portfolios.find(p => p.id === entry.id);
+          const holdingCount = isActive ? portfolio.holdings.length : 0;
+          const isDraft = currentPortfolio?.type === 'draft';
+          
+          return (
+            <button
+              key={entry.id}
+              type="button"
+              onClick={() => setActivePortfolio(entry.id)}
+              style={isActive ? activePortfolioButtonStyle : portfolioButtonStyle}
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  {entry.name}
+                  {isDraft && (
+                    <span style={{ 
+                      fontSize: '0.6rem', 
+                      backgroundColor: '#fbbf24', 
+                      color: '#92400e',
+                      padding: '0.1rem 0.3rem',
+                      borderRadius: '0.25rem',
+                      fontWeight: 600
+                    }}>
+                      DRAFT
+                    </span>
+                  )}
+                </div>
+                {isActive && (
+                  <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.7rem', color: '#94a3af' }}>
+                    <span>{holdingCount} holdings</span>
+                    {isDraft && currentPortfolio?.parentId && (
+                      <>
+                        <span>•</span>
+                        <span>Draft of {portfolios.find(p => p.id === currentPortfolio.parentId)?.name}</span>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            </button>
+          );
+        })}
+        
+        <button type="button" onClick={handleAdd} style={addButtonStyle}>
+          <span>+</span>
+          New portfolio
+        </button>
+      </div>
+
       {isEditing ? (
-        <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <input
             type="text"
             value={draftName}
@@ -112,10 +209,16 @@ const PortfolioSwitcher = () => {
                 setIsEditing(false);
               }
             }}
-            style={{ padding: '0.45rem 0.6rem', borderRadius: '0.6rem', border: '1px solid #cbd5f5', minWidth: '13rem' }}
+            style={{ 
+              padding: '0.5rem 0.75rem', 
+              borderRadius: '0.5rem', 
+              border: '1px solid #d1d5db', 
+              minWidth: '12rem',
+              fontSize: '0.875rem'
+            }}
             autoFocus
           />
-          <button type="button" onClick={handleRenameSubmit} style={buttonStyle}>
+          <button type="button" onClick={handleRenameSubmit} style={actionButtonStyle}>
             Save
           </button>
           <button
@@ -130,21 +233,28 @@ const PortfolioSwitcher = () => {
           </button>
         </div>
       ) : (
-        <button type="button" onClick={() => setIsEditing(true)} style={buttonStyle}>
-          Rename
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <button type="button" onClick={() => setIsEditing(true)} style={actionButtonStyle}>
+            Rename
+          </button>
+          
+          {portfolio.type === 'actual' && (
+            <button type="button" onClick={handleCreateDraft} style={actionButtonStyle}>
+              Create Draft
+            </button>
+          )}
+          
+
+          
+          {portfolio.type === 'draft' && (
+            <button type="button" onClick={handlePromoteDraft} style={addButtonStyle}>
+              Apply to Actual
+            </button>
+          )}
+          
+
+        </div>
       )}
-      <button type="button" onClick={handleAdd} style={buttonStyle}>
-        Add Portfolio
-      </button>
-      <button
-        type="button"
-        onClick={handleDelete}
-        style={{ ...destructiveButtonStyle, opacity: portfolios.length <= 1 ? 0.5 : 1 }}
-        disabled={portfolios.length <= 1}
-      >
-        Delete
-      </button>
     </div>
   );
 };
