@@ -122,48 +122,56 @@ const inputRowStyle: CSSProperties = {
 };
 
 const inputStyle: CSSProperties = {
-  padding: '0.5rem',
-  border: '1px solid #d1d5db',
-  borderRadius: '0.25rem',
-  fontSize: '0.875rem',
+  padding: '8px 12px',
+  border: '1px solid #dadce0',
+  borderRadius: '8px',
+  fontSize: '14px',
   width: '80px',
   textAlign: 'right',
+  transition: 'border-color 0.15s ease',
+  outline: 'none',
 };
 
 const selectStyle: CSSProperties = {
-  padding: '0.5rem',
-  border: '1px solid #d1d5db',
-  borderRadius: '0.25rem',
-  fontSize: '0.875rem',
+  padding: '8px 12px',
+  border: '1px solid #dadce0',
+  borderRadius: '8px',
+  fontSize: '14px',
   width: '120px',
+  cursor: 'pointer',
+  transition: 'border-color 0.15s ease',
+  outline: 'none',
 };
 
 const nameInputStyle: CSSProperties = {
   flex: 1,
-  padding: '0.5rem',
-  border: '1px solid #d1d5db',
-  borderRadius: '0.25rem',
-  fontSize: '0.875rem',
+  padding: '8px 12px',
+  border: '1px solid #dadce0',
+  borderRadius: '8px',
+  fontSize: '14px',
+  transition: 'border-color 0.15s ease',
+  outline: 'none',
 };
 
 const buttonStyle: CSSProperties = {
-  padding: '0.5rem 1rem',
-  borderRadius: '0.25rem',
+  padding: '8px 16px',
+  borderRadius: '8px',
   border: 'none',
-  fontSize: '0.875rem',
+  fontSize: '14px',
   cursor: 'pointer',
   fontWeight: 500,
+  transition: 'all 0.15s ease',
 };
 
 const addButtonStyle: CSSProperties = {
   ...buttonStyle,
-  backgroundColor: '#10b981',
+  backgroundColor: '#1a73e8',
   color: '#fff',
 };
 
 const deleteButtonStyle: CSSProperties = {
   ...buttonStyle,
-  backgroundColor: '#ef4444',
+  backgroundColor: '#ea4335',
   color: '#fff',
 };
 
@@ -260,21 +268,11 @@ export const AllocationManager = () => {
     let newBudget: BudgetLimit = {};
 
     if (targetDomain === 'themes') {
-      // For themes, the percentage is of the parent section, not total portfolio
+      // For themes, only store the percentage of section
+      // The selector will calculate amount and portfolio percent dynamically
       if (field === 'percent') {
         newBudget.percentOfSection = numValue;
-        // Calculate portfolio percentage and amount based on section allocation
-        const section = portfolio.lists.themeSections?.[label];
-        if (section && numValue !== undefined) {
-          const sectionBudget = budgets.sections?.[section];
-          if (sectionBudget?.amount) {
-            newBudget.amount = (numValue / 100) * sectionBudget.amount;
-            newBudget.percent = targetPortfolioValue > 0 ? (newBudget.amount / targetPortfolioValue) * 100 : undefined;
-          } else if (sectionBudget?.percent) {
-            newBudget.percent = (sectionBudget.percent * numValue) / 100;
-            newBudget.amount = targetPortfolioValue > 0 ? (newBudget.percent / 100) * targetPortfolioValue : undefined;
-          }
-        }
+        // Don't store amount or percent - let the selector calculate them dynamically
       } else {
         // If setting amount directly for theme
         newBudget.amount = numValue;

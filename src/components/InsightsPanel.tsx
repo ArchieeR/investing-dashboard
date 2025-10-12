@@ -36,10 +36,10 @@ const cardsGridStyle: CSSProperties = {
 };
 
 const cardStyle: CSSProperties = {
-  borderRadius: '1rem',
-  border: '1px solid #e2e8f0',
+  borderRadius: '12px',
+  border: '1px solid #e8eaed',
   background: '#ffffff',
-  boxShadow: '0 1px 3px rgba(15, 23, 42, 0.08)',
+  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.06)',
   padding: '1.25rem',
   display: 'flex',
   flexDirection: 'column',
@@ -73,47 +73,60 @@ const addRowStyle: CSSProperties = {
 };
 
 const textInputStyle: CSSProperties = {
-  padding: '0.4rem 0.75rem',
-  borderRadius: '0.5rem',
-  border: '1px solid #cbd5f5',
+  padding: '8px 12px',
+  borderRadius: '8px',
+  border: '1px solid #dadce0',
   width: '100%',
+  fontSize: '14px',
+  transition: 'border-color 0.15s ease',
+  outline: 'none',
 };
 
 const numberInputStyle: CSSProperties = {
   width: '4rem',
-  padding: '0.35rem 0.5rem',
-  borderRadius: '0.5rem',
-  border: '1px solid #cbd5f5',
-  fontSize: '0.85rem',
+  padding: '8px 12px',
+  borderRadius: '8px',
+  border: '1px solid #dadce0',
+  fontSize: '14px',
   textAlign: 'right',
+  transition: 'border-color 0.15s ease',
+  outline: 'none',
 };
 
 const selectStyle: CSSProperties = {
-  padding: '0.35rem 0.45rem',
-  borderRadius: '0.5rem',
-  border: '1px solid #cbd5f5',
-  fontSize: '0.85rem',
+  padding: '8px 12px',
+  borderRadius: '8px',
+  border: '1px solid #dadce0',
+  fontSize: '14px',
   minWidth: '4.8rem',
   textAlign: 'center',
+  cursor: 'pointer',
+  transition: 'border-color 0.15s ease',
+  outline: 'none',
 };
 
 const primaryButtonStyle: CSSProperties = {
-  padding: '0.45rem 0.9rem',
-  borderRadius: '0.6rem',
+  padding: '8px 16px',
+  borderRadius: '8px',
   border: 'none',
-  background: '#2563eb',
+  background: '#1a73e8',
   color: '#fff',
-  fontWeight: 600,
+  fontWeight: 500,
   cursor: 'pointer',
+  fontSize: '14px',
+  transition: 'all 0.15s ease',
 };
 
 const secondaryButtonStyle: CSSProperties = {
-  padding: '0.4rem 0.75rem',
-  borderRadius: '0.6rem',
-  border: '1px solid #cbd5f5',
-  background: '#f8fafc',
-  color: '#0f172a',
+  padding: '8px 16px',
+  borderRadius: '8px',
+  border: '1px solid #dadce0',
+  background: '#fff',
+  color: '#5f6368',
   cursor: 'pointer',
+  fontSize: '14px',
+  fontWeight: 500,
+  transition: 'all 0.15s ease',
 };
 
 const rowStyle: CSSProperties = {

@@ -119,7 +119,7 @@ export type PortfolioAction =
   | { type: 'import-trades'; trades: { ticker: string; name?: string; type: TradeType; date: string; price: number; qty: number }[] }
   | { type: 'set-active-portfolio'; id: string }
   | { type: 'rename-portfolio'; id: string; name: string }
-  | { type: 'add-portfolio'; id: string; name?: string; owner?: string; type?: PortfolioType; parentId?: string }
+  | { type: 'add-portfolio'; id: string; name?: string; owner?: string; portfolioType?: PortfolioType; parentId?: string }
   | { type: 'remove-portfolio'; id: string }
   | { type: 'create-draft-portfolio'; parentId: string; name?: string }
   | { type: 'promote-draft-to-actual'; draftId: string }
@@ -1138,7 +1138,7 @@ export const portfolioReducer = (state: AppState, action: PortfolioAction): AppS
         action.id, 
         finalName, 
         action.owner || 'Self', 
-        action.type || 'actual',
+        action.portfolioType || 'actual',
         action.parentId
       ));
 
@@ -1584,7 +1584,7 @@ export const PortfolioProvider: React.FC<React.PropsWithChildren> = ({ children 
   const addPortfolio = useCallback(
     (name?: string, owner?: string, type?: PortfolioType, parentId?: string) => {
       const id = generatePortfolioId();
-      dispatch({ type: 'add-portfolio', id, name, owner, type, parentId });
+      dispatch({ type: 'add-portfolio', id, name, owner, portfolioType: type, parentId });
       return id;
     },
     []

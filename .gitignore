@@ -98,8 +98,9 @@ temp/
 firebase-debug.log
 firebase-debug.*.log
 
-# Portfolio Manager specific
-backups/*.json
+# Portfolio Manager specific - exclude all portfolio data
+portfolio-data.json
+backups/
 !backups/.gitkeep
 
 # Sensitive files

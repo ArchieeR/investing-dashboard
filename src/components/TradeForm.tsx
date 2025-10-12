@@ -17,7 +17,7 @@ const modalOverlayStyle: CSSProperties = {
 
 const modalStyle: CSSProperties = {
   backgroundColor: '#fff',
-  borderRadius: '1rem',
+  borderRadius: '16px',
   padding: '1.5rem',
   maxWidth: '500px',
   width: '90vw',
@@ -69,11 +69,13 @@ const labelStyle: CSSProperties = {
 };
 
 const inputStyle: CSSProperties = {
-  padding: '0.5rem 0.75rem',
-  borderRadius: '0.5rem',
-  border: '1px solid #d1d5db',
-  fontSize: '0.875rem',
+  padding: '12px 16px',
+  borderRadius: '8px',
+  border: '1px solid #dadce0',
+  fontSize: '14px',
   backgroundColor: '#fff',
+  transition: 'border-color 0.15s ease',
+  outline: 'none',
 };
 
 const selectStyle: CSSProperties = {
@@ -83,28 +85,29 @@ const selectStyle: CSSProperties = {
 
 const buttonGroupStyle: CSSProperties = {
   display: 'flex',
-  gap: '0.75rem',
+  gap: '0.5rem',
   justifyContent: 'flex-end',
   marginTop: '1rem',
   paddingTop: '1rem',
-  borderTop: '1px solid #e2e8f0',
+  borderTop: '1px solid #e8eaed',
 };
 
 const buttonStyle: CSSProperties = {
-  padding: '0.5rem 1rem',
-  borderRadius: '0.5rem',
-  border: '1px solid #d1d5db',
+  padding: '10px 24px',
+  borderRadius: '8px',
+  border: '1px solid #dadce0',
   backgroundColor: '#fff',
-  color: '#374151',
+  color: '#5f6368',
   cursor: 'pointer',
-  fontSize: '0.875rem',
+  fontSize: '14px',
   fontWeight: 500,
+  transition: 'all 0.15s ease',
 };
 
 const primaryButtonStyle: CSSProperties = {
   ...buttonStyle,
-  backgroundColor: '#2563eb',
-  borderColor: '#2563eb',
+  backgroundColor: '#1a73e8',
+  borderColor: '#1a73e8',
   color: '#fff',
 };
 

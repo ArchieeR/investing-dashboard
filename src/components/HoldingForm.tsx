@@ -23,13 +23,13 @@ const formStyle: CSSProperties = {
 
 const modalStyle: CSSProperties = {
   backgroundColor: '#fff',
-  borderRadius: '0.75rem',
+  borderRadius: '16px',
   padding: '2rem',
   width: '90%',
   maxWidth: '500px',
   maxHeight: '90vh',
   overflow: 'auto',
-  boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+  boxShadow: '0 8px 16px rgba(0, 0, 0, 0.15)',
 };
 
 const headerStyle: CSSProperties = {
@@ -53,31 +53,38 @@ const labelStyle: CSSProperties = {
 
 const inputStyle: CSSProperties = {
   width: '100%',
-  padding: '0.75rem',
-  border: '1px solid #d1d5db',
-  borderRadius: '0.5rem',
-  fontSize: '0.875rem',
+  padding: '12px 16px',
+  border: '1px solid #dadce0',
+  borderRadius: '8px',
+  fontSize: '14px',
   boxSizing: 'border-box',
+  transition: 'border-color 0.15s ease',
+  outline: 'none',
 };
 
 const selectStyle: CSSProperties = {
   ...inputStyle,
   backgroundColor: '#fff',
+  cursor: 'pointer',
 };
 
 const buttonStyle: CSSProperties = {
-  padding: '0.75rem 1.5rem',
-  borderRadius: '0.5rem',
-  border: 'none',
-  fontSize: '0.875rem',
+  padding: '10px 24px',
+  borderRadius: '8px',
+  border: '1px solid #dadce0',
+  fontSize: '14px',
   fontWeight: 500,
   cursor: 'pointer',
   marginRight: '0.5rem',
+  backgroundColor: '#fff',
+  color: '#5f6368',
+  transition: 'all 0.15s ease',
 };
 
 const primaryButtonStyle: CSSProperties = {
   ...buttonStyle,
-  backgroundColor: '#2563eb',
+  backgroundColor: '#1a73e8',
+  border: 'none',
   color: '#fff',
 };
 

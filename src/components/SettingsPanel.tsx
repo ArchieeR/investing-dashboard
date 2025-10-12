@@ -87,9 +87,9 @@ const sectionStyle: CSSProperties = {
   marginBottom: '2rem',
   padding: '1.5rem',
   backgroundColor: '#fff',
-  borderRadius: '0.5rem',
-  border: '1px solid #e5e7eb',
-  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+  borderRadius: '12px',
+  border: '1px solid #e8eaed',
+  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.06)',
 };
 
 const sectionHeaderStyle: CSSProperties = {
@@ -149,46 +149,49 @@ const dragHandleStyle: CSSProperties = {
 
 const inputStyle: CSSProperties = {
   flex: 1,
-  padding: '0.5rem',
-  border: '1px solid #d1d5db',
-  borderRadius: '0.25rem',
-  fontSize: '0.875rem',
+  padding: '8px 12px',
+  border: '1px solid #dadce0',
+  borderRadius: '8px',
+  fontSize: '14px',
+  transition: 'border-color 0.15s ease',
+  outline: 'none',
 };
 
 const buttonStyle: CSSProperties = {
-  padding: '0.5rem 1rem',
-  borderRadius: '0.25rem',
+  padding: '8px 16px',
+  borderRadius: '8px',
   border: 'none',
-  fontSize: '0.875rem',
+  fontSize: '14px',
   cursor: 'pointer',
   fontWeight: 500,
+  transition: 'all 0.15s ease',
 };
 
 const addButtonStyle: CSSProperties = {
   ...buttonStyle,
-  backgroundColor: '#10b981',
+  backgroundColor: '#1a73e8',
   color: '#fff',
 };
 
 const removeButtonStyle: CSSProperties = {
   ...buttonStyle,
-  backgroundColor: '#ef4444',
+  backgroundColor: '#ea4335',
   color: '#fff',
 };
 
 const editButtonStyle: CSSProperties = {
   ...buttonStyle,
-  backgroundColor: '#f3f4f6',
-  color: '#374151',
-  border: '1px solid #d1d5db',
+  backgroundColor: '#fff',
+  color: '#5f6368',
+  border: '1px solid #dadce0',
 };
 
 const saveButtonStyle: CSSProperties = {
   ...buttonStyle,
-  backgroundColor: '#3b82f6',
+  backgroundColor: '#1a73e8',
   color: '#fff',
-  fontSize: '1rem',
-  padding: '0.75rem 1.5rem',
+  fontSize: '14px',
+  padding: '10px 24px',
 };
 
 const addFormStyle: CSSProperties = {

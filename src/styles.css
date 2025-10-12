@@ -1,7 +1,7 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  color: #0f172a;
-  background-color: #f8fafc;
+  font-family: 'Roboto', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: #202124;
+  background-color: #f8f9fa;
 }
 
 body {
@@ -11,4 +11,29 @@ body {
 
 * {
   box-sizing: border-box;
+}
+
+/* Ensure all elements inherit the font */
+* {
+  font-family: inherit;
+}
+
+/* Google Finance-inspired input styles */
+input:focus,
+select:focus {
+  border-color: #1a73e8 !important;
+  box-shadow: 0 0 0 1px #1a73e8;
+}
+
+input:hover:not(:focus),
+select:hover:not(:focus) {
+  border-color: #5f6368;
+}
+
+button:hover {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+}
+
+button:active {
+  transform: scale(0.98);
 }

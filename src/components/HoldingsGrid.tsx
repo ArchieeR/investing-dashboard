@@ -15,6 +15,123 @@ import { calculateQtyFromValue, calculateValueForShare } from '../utils/calculat
 import { holdingsToCsv, parseHoldingsCsv } from '../utils/csv';
 import { ColumnSettings } from './ColumnSettings';
 
+// Actions Dropdown Component
+interface ActionsDropdownProps {
+  holding: Holding;
+  onDuplicate: () => void;
+  onDelete: () => void;
+  onTrade: () => void;
+}
+
+const ActionsDropdown = ({ holding, onDuplicate, onDelete, onTrade }: ActionsDropdownProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const dropdownStyle: CSSProperties = {
+    position: 'relative',
+    display: 'inline-block',
+  };
+
+  const buttonStyle: CSSProperties = {
+    background: 'none',
+    border: '1px solid #dadce0',
+    borderRadius: '6px',
+    padding: '4px 8px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    color: '#5f6368',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '32px',
+    height: '32px',
+    transition: 'all 0.15s ease',
+  };
+
+  const menuStyle: CSSProperties = {
+    position: 'absolute',
+    right: 0,
+    top: '100%',
+    backgroundColor: '#fff',
+    border: '1px solid #dadce0',
+    borderRadius: '8px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+    zIndex: 1000,
+    minWidth: '140px',
+    marginTop: '4px',
+  };
+
+  const menuItemStyle: CSSProperties = {
+    padding: '8px 16px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    color: '#202124',
+    borderBottom: '1px solid #f1f3f4',
+    transition: 'background-color 0.15s ease',
+  };
+
+  const lastMenuItemStyle: CSSProperties = {
+    ...menuItemStyle,
+    borderBottom: 'none',
+  };
+
+  const deleteMenuItemStyle: CSSProperties = {
+    ...lastMenuItemStyle,
+    color: '#ea4335',
+  };
+
+  return (
+    <div style={dropdownStyle}>
+      <button
+        style={buttonStyle}
+        onClick={() => setIsOpen(!isOpen)}
+        onBlur={() => setTimeout(() => setIsOpen(false), 150)}
+        title="Actions"
+      >
+        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+          more_vert
+        </span>
+      </button>
+      
+      {isOpen && (
+        <div style={menuStyle}>
+          <div
+            style={menuItemStyle}
+            onClick={() => {
+              onTrade();
+              setIsOpen(false);
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          >
+            Record Trade
+          </div>
+          <div
+            style={menuItemStyle}
+            onClick={() => {
+              onDuplicate();
+              setIsOpen(false);
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          >
+            Duplicate
+          </div>
+          <div
+            style={deleteMenuItemStyle}
+            onClick={() => {
+              onDelete();
+              setIsOpen(false);
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fef7f7'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          >
+            Delete
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const numberInput = {
   inputMode: 'decimal' as const,
@@ -220,13 +337,13 @@ const renderHoldingCells = (
 
   if (visibleColumns.name) {
     cells.push(renderTableCell('name',
-      <input value={holding.name} onChange={handlers.handleTextChange(holding.id, 'name')} style={nameInputStyle} />
+      <span style={{ fontSize: '14px', fontWeight: 500 }}>{holding.name}</span>
     ));
   }
 
   if (visibleColumns.ticker) {
     cells.push(renderTableCell('ticker',
-      <input value={holding.ticker} onChange={handlers.handleTextChange(holding.id, 'ticker')} style={tickerInputStyle} />
+      <span style={{ fontSize: '14px', fontWeight: 600, color: '#1a73e8' }}>{holding.ticker}</span>
     ));
   }
 
@@ -511,29 +628,12 @@ const renderHoldingCells = (
 
   if (visibleColumns.actions) {
     cells.push(renderTableCell('actions',
-      <div style={actionCellStyle}>
-        <button
-          type="button"
-          onClick={() => handlers.duplicateHolding(holding.id)}
-          style={inlineButtonStyle}
-        >
-          Duplicate
-        </button>
-        <button
-          type="button"
-          onClick={() => handlers.deleteHolding(holding.id)}
-          style={inlineButtonStyle}
-        >
-          Delete
-        </button>
-        <button
-          type="button"
-          onClick={() => handlers.openTradeForm(holding)}
-          style={inlineButtonStyle}
-        >
-          Record trade
-        </button>
-      </div>
+      <ActionsDropdown 
+        holding={holding}
+        onDuplicate={() => handlers.duplicateHolding(holding.id)}
+        onDelete={() => handlers.deleteHolding(holding.id)}
+        onTrade={() => handlers.openTradeForm(holding)}
+      />
     ));
   }
 
@@ -566,20 +666,56 @@ const clampShare = (share: number): number => {
   return Math.min(share, 0.9999);
 };
 
-const selectStyle: CSSProperties = { minWidth: '4rem' };
-const themeSelectStyle: CSSProperties = { minWidth: '4.5rem' };
-const tickerInputStyle: CSSProperties = { width: '4.2rem' };
-const nameInputStyle: CSSProperties = { width: '9rem' };
-const numericInputStyle: CSSProperties = { width: '4.4rem' };
-const targetInputStyle: CSSProperties = { width: '3.8rem' };
+// Base input style - Google Finance inspired
+const baseInputStyle: CSSProperties = {
+  border: '1px solid #dadce0',
+  borderRadius: '8px',
+  padding: '8px 12px',
+  fontSize: '14px',
+  fontFamily: 'inherit',
+  backgroundColor: '#fff',
+  transition: 'border-color 0.15s ease',
+  outline: 'none',
+};
+
+const selectStyle: CSSProperties = { 
+  ...baseInputStyle,
+  minWidth: '4rem',
+  cursor: 'pointer',
+};
+const themeSelectStyle: CSSProperties = { 
+  ...baseInputStyle,
+  minWidth: '4.5rem',
+  cursor: 'pointer',
+};
+const tickerInputStyle: CSSProperties = { 
+  ...baseInputStyle,
+  width: '4.2rem',
+  fontWeight: 500,
+};
+const nameInputStyle: CSSProperties = { 
+  ...baseInputStyle,
+  width: '9rem',
+};
+const numericInputStyle: CSSProperties = { 
+  ...baseInputStyle,
+  width: '4.4rem',
+  textAlign: 'right',
+};
+const targetInputStyle: CSSProperties = { 
+  ...baseInputStyle,
+  width: '3.8rem',
+  textAlign: 'right',
+};
 const actionCellStyle: CSSProperties = { display: 'flex', gap: '0.4rem', flexWrap: 'wrap' };
 const inlineButtonStyle: CSSProperties = {
   padding: 0,
   border: 'none',
   background: 'none',
-  color: '#1d4ed8',
+  color: '#1a73e8',
   cursor: 'pointer',
   fontSize: '0.85rem',
+  fontWeight: 500,
 };
 const headerContainerStyle: CSSProperties = {
   display: 'flex',
@@ -597,24 +733,31 @@ const headerTopRowStyle: CSSProperties = {
 
 const actionButtonsContainerStyle: CSSProperties = {
   display: 'flex',
-  gap: '0.6rem',
+  gap: '0.5rem',
   alignItems: 'center',
   flexWrap: 'wrap',
 };
 const actionButtonStyle: CSSProperties = {
-  padding: '0.42rem 0.85rem',
-  borderRadius: '999px',
-  border: '1px solid #cbd5f5',
-  background: 'transparent',
-  color: '#1e3a8a',
+  padding: '8px 16px',
+  borderRadius: '8px',
+  border: '1px solid #dadce0',
+  background: '#fff',
+  color: '#5f6368',
   cursor: 'pointer',
-  fontSize: '0.85rem',
+  fontSize: '14px',
+  fontWeight: 500,
+  transition: 'all 0.15s ease',
 };
 const primaryActionButtonStyle: CSSProperties = {
-  ...actionButtonStyle,
-  background: '#1d4ed8',
+  padding: '8px 16px',
+  borderRadius: '8px',
+  background: '#1a73e8',
   border: 'none',
   color: '#fff',
+  cursor: 'pointer',
+  fontSize: '14px',
+  fontWeight: 500,
+  transition: 'all 0.15s ease',
 };
 const filtersContainerStyle: CSSProperties = {
   display: 'grid',
@@ -622,38 +765,101 @@ const filtersContainerStyle: CSSProperties = {
   gap: '0.85rem',
   marginBottom: '1.25rem',
 };
-const tableStyle: CSSProperties = {
+const getTableStyle = (displayMode: 'monitor' | 'editor'): CSSProperties => ({
   width: '100%',
-  borderCollapse: 'collapse',
-  minWidth: '1020px',
-};
+  borderCollapse: 'separate',
+  borderSpacing: '0',
+  minWidth: displayMode === 'monitor' ? '800px' : '1200px',
+  backgroundColor: '#fff',
+  borderRadius: '8px',
+  overflow: 'hidden',
+  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+});
 const thStyle: CSSProperties = {
-  padding: '0.75rem 0.6rem',
-  fontSize: '0.7rem',
-  fontWeight: 600,
+  padding: '12px 12px',
+  fontSize: '11px',
+  fontWeight: 500,
   textTransform: 'uppercase',
   letterSpacing: '0.05em',
-  color: '#1f2937',
+  color: '#5f6368',
   textAlign: 'left',
-  borderBottom: '1px solid #e2e8f0',
-  background: 'transparent',
+  borderBottom: '1px solid #e8eaed',
+  background: '#f8f9fa',
 };
 const tdStyle: CSSProperties = {
-  padding: '0.65rem 0.6rem',
-  borderBottom: '1px solid #e2e8f0',
+  padding: '12px 12px',
+  borderBottom: '1px solid #e8eaed',
   verticalAlign: 'middle',
+  fontSize: '14px',
 };
 const filtersLabelStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   fontSize: '0.85rem',
-  color: '#475569',
+  color: '#5f6368',
   gap: '0.35rem',
 };
 
 
 
 const getSectionAbbreviation = (section: string): string => section.charAt(0).toUpperCase();
+
+// Column configurations for different view modes
+const getColumnConfig = (displayMode: 'monitor' | 'editor') => {
+  if (displayMode === 'monitor') {
+    return {
+      ticker: true,
+      name: true,
+      livePrice: true,
+      qty: true,
+      dayChange: true,
+      dayChangePercent: true,
+      liveValue: true,
+      // Hide all other columns in monitor mode
+      section: false,
+      theme: false,
+      assetType: false,
+      exchange: false,
+      account: false,
+      price: false,
+      value: false,
+      pctOfTotal: false,
+      pctOfSection: false,
+      pctOfTheme: false,
+      targetPct: false,
+      targetValue: false,
+      targetValueDiff: false,
+      include: false,
+      actions: false,
+    };
+  } else {
+    // Editor mode - show all management columns
+    return {
+      section: true,
+      theme: true,
+      assetType: true,
+      name: true,
+      ticker: true,
+      exchange: true,
+      account: true,
+      livePrice: true,
+      qty: true,
+      liveValue: true,
+      pctOfTheme: true,
+      targetPct: true,
+      targetDelta: true,
+      include: true,
+      actions: true,
+      // Hide some columns in editor mode
+      price: false,
+      value: false,
+      pctOfTotal: false,
+      pctOfSection: false,
+      dayChange: false,
+      dayChangePercent: false,
+    };
+  }
+};
 
 const HoldingsGrid = () => {
   const {
@@ -702,7 +908,8 @@ const HoldingsGrid = () => {
   }, [lists.accounts]);
 
   const sortedThemes = useMemo(() => [...lists.themes], [lists.themes]);
-  const [viewMode, setViewMode] = useState<'theme' | 'account'>('theme');
+  const [groupingMode, setGroupingMode] = useState<'theme' | 'account'>('theme');
+  const [displayMode, setDisplayMode] = useState<'monitor' | 'editor'>('monitor');
 
   const getGroupColors = (index: number) => {
     const hue = (index * 67) % 360;
@@ -812,26 +1019,8 @@ const HoldingsGrid = () => {
           updateHolding(id, { [field]: value } as Partial<Holding>);
         }
       } else if (field === 'section') {
-        // When section changes, check if current theme is compatible
-        const currentHolding = portfolio.holdings.find(h => h.id === id);
-        const currentTheme = currentHolding?.theme;
-        const themeSection = currentTheme ? portfolio.lists.themeSections?.[currentTheme] : undefined;
-
-        if (currentTheme && themeSection && themeSection !== value) {
-          // Current theme belongs to a different section, need to find a compatible theme
-          // Find the first theme that belongs to the new section, or default to first theme
-          const compatibleTheme = portfolio.lists.themes.find(theme =>
-            portfolio.lists.themeSections?.[theme] === value
-          ) || portfolio.lists.themes[0] || 'All';
-
-          updateHolding(id, {
-            section: value,
-            theme: compatibleTheme
-          });
-        } else {
-          // Theme is compatible or no theme assigned, just update section
-          updateHolding(id, { [field]: value } as Partial<Holding>);
-        }
+        // Just update the section, don't change the theme
+        updateHolding(id, { [field]: value } as Partial<Holding>);
       } else {
         updateHolding(id, { [field]: value } as Partial<Holding>);
       }
@@ -921,7 +1110,7 @@ const HoldingsGrid = () => {
     return clone;
   }, [filteredHoldings, sectionOrder, themeOrder, accountOrder]);
 
-  const visibleColumns = portfolio.settings.visibleColumns;
+  const visibleColumns = getColumnConfig(displayMode);
 
   const tableHeaders = useMemo(() => {
     const headers: Array<{ key: string; label: string }> = [];
@@ -982,14 +1171,14 @@ const HoldingsGrid = () => {
     >();
 
     sortedHoldings.forEach((item, index) => {
-      const groupingKey = viewMode === 'theme' ? item.holding.theme : item.holding.account;
-      const label = groupingKey || (viewMode === 'theme' ? 'Uncategorised theme' : 'Uncategorised account');
+      const groupingKey = groupingMode === 'theme' ? item.holding.theme : item.holding.account;
+      const label = groupingKey || (groupingMode === 'theme' ? 'Uncategorised theme' : 'Uncategorised account');
       if (!groups.has(label)) {
-        const budgetSource = viewMode === 'theme' ? budgets.themes?.[label] : budgets.accounts?.[label];
+        const budgetSource = groupingMode === 'theme' ? budgets.themes?.[label] : budgets.accounts?.[label];
         let targetPercent = budgetSource?.percent;
         let targetAmount = budgetSource?.amount;
 
-        if (viewMode === 'theme') {
+        if (groupingMode === 'theme') {
           // Simple hierarchy: Portfolio → Section → Theme
           const themeSection = portfolio.lists.themeSections?.[label];
           const sectionBudget = themeSection ? budgets.sections?.[themeSection] : undefined;
@@ -1013,7 +1202,7 @@ const HoldingsGrid = () => {
         groups.set(label, {
           key: label,
           label,
-          section: viewMode === 'theme' ? portfolio.lists.themeSections?.[label] : undefined,
+          section: groupingMode === 'theme' ? portfolio.lists.themeSections?.[label] : undefined,
           holdings: [],
           totalValue: 0,
           percentOfTotal: 0,
@@ -1030,7 +1219,7 @@ const HoldingsGrid = () => {
     });
 
     return Array.from(groups.values());
-  }, [sortedHoldings, viewMode, budgets.accounts, budgets.themes, portfolio.lists.themeSections, totalValue]);
+  }, [sortedHoldings, groupingMode, budgets.accounts, budgets.themes, portfolio.lists.themeSections, totalValue]);
 
   return (
     <section>
@@ -1146,27 +1335,57 @@ const HoldingsGrid = () => {
           flexWrap: 'wrap',
         }}
       >
-        <span style={{ fontSize: '0.85rem', color: '#475569' }}>Group view:</span>
+        <span style={{ fontSize: '0.85rem', color: '#475569' }}>View:</span>
         {[
-          { value: 'theme', label: 'By Theme' },
-          { value: 'account', label: 'By Account' },
+          { value: 'monitor', label: 'Monitor' },
+          { value: 'editor', label: 'Editor' },
         ].map((option) => {
-          const active = viewMode === option.value;
+          const active = displayMode === option.value;
           return (
             <button
               key={option.value}
               type="button"
               style={{
                 padding: '0.35rem 1rem',
-                borderRadius: '999px',
-                border: active ? '1px solid #1d4ed8' : '1px solid #cbd5f5',
-                background: active ? '#1d4ed8' : '#fff',
-                color: active ? '#fff' : '#0f172a',
+                borderRadius: '8px',
+                border: active ? '1px solid #1a73e8' : '1px solid #dadce0',
+                background: active ? '#1a73e8' : '#fff',
+                color: active ? '#fff' : '#5f6368',
                 cursor: 'pointer',
-                fontWeight: 600,
-                boxShadow: active ? '0 1px 3px rgba(29, 78, 216, 0.35)' : 'none',
+                fontWeight: 500,
+                boxShadow: active ? '0 1px 3px rgba(26, 115, 232, 0.35)' : 'none',
+                transition: 'all 0.15s ease',
               }}
-              onClick={() => setViewMode(option.value as 'theme' | 'account')}
+              onClick={() => setDisplayMode(option.value as 'monitor' | 'editor')}
+              aria-pressed={active}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+        
+        <span style={{ fontSize: '0.85rem', color: '#475569', marginLeft: '1rem' }}>Group by:</span>
+        {[
+          { value: 'theme', label: 'Theme' },
+          { value: 'account', label: 'Account' },
+        ].map((option) => {
+          const active = groupingMode === option.value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              style={{
+                padding: '0.35rem 1rem',
+                borderRadius: '8px',
+                border: active ? '1px solid #1a73e8' : '1px solid #dadce0',
+                background: active ? '#1a73e8' : '#fff',
+                color: active ? '#fff' : '#5f6368',
+                cursor: 'pointer',
+                fontWeight: 500,
+                boxShadow: active ? '0 1px 3px rgba(26, 115, 232, 0.35)' : 'none',
+                transition: 'all 0.15s ease',
+              }}
+              onClick={() => setGroupingMode(option.value as 'theme' | 'account')}
               aria-pressed={active}
             >
               {option.label}
@@ -1214,7 +1433,7 @@ const HoldingsGrid = () => {
 
 
       <div style={{ overflowX: 'auto' }}>
-        <table style={tableStyle}>
+        <table style={getTableStyle(displayMode)}>
           <thead>
             <tr>
               {tableHeaders.map((header) => (
@@ -1234,11 +1453,17 @@ const HoldingsGrid = () => {
                 </td>
               </tr>
             ) : (
-              groupData.map((group) => (
+              // Both modes: grouped display
+              groupData.map((group, groupIndex) => (
                 <Fragment key={group.key}>
                   <tr>
                     {tableHeaders.map((header, index) => (
-                      <td key={header.key} style={{ padding: '0.4rem 0.6rem', background: group.colors.header }}>
+                      <td key={header.key} style={{ 
+                        padding: '0.4rem 0.6rem', 
+                        background: group.colors.header,
+                        borderLeft: index === 0 ? '4px solid #1a73e8' : 'none',
+                        position: 'relative',
+                      }}>
                         {index === 0 ? (
                           // First column: show theme name
                           <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>
@@ -1305,6 +1530,8 @@ const HoldingsGrid = () => {
                           style={{
                             opacity: holding.include ? 1 : 0.6,
                             backgroundColor: holding.include ? group.colors.row : '#f8fafc',
+                            borderLeft: '4px solid #1a73e8',
+                            position: 'relative',
                           }}
                         >
                           {cells}
@@ -1312,6 +1539,19 @@ const HoldingsGrid = () => {
                       </Fragment>
                     );
                   })}
+                  
+                  {/* Add spacing between groups (except after the last group) */}
+                  {groupIndex < groupData.length - 1 && (
+                    <tr>
+                      <td 
+                        colSpan={tableHeaders.length} 
+                        style={{ 
+                          padding: '8px 0',
+                          border: 'none',
+                        }}
+                      />
+                    </tr>
+                  )}
                 </Fragment>
               ))
             )}

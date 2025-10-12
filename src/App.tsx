@@ -11,7 +11,7 @@ import { TradeForm } from './components/TradeForm';
 import HoldingForm from './components/HoldingForm';
 import BackupButton from './components/BackupButton';
 import BackupStatus from './components/BackupStatus';
-import { RestoreDetector } from './components/RestoreDetector';
+
 import { PortfolioProvider, usePortfolio } from './state/portfolioStore';
 import { useLivePrices } from './hooks/useLivePrices';
 
@@ -152,10 +152,7 @@ const AppContent = () => {
 
   return (
     <>
-      <RestoreDetector 
-        portfolioData={getAppState() as any}
-        onRestore={handleRestore}
-      />
+
       <main style={{ padding: '2rem', margin: '0 auto', maxWidth: '1440px' }}>
         <header style={{ marginBottom: '2rem' }}>
           <h1 style={{ marginBottom: '0.5rem' }}>Portfolio Manager</h1>
