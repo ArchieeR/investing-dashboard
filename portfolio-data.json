@@ -6,15 +6,18 @@
       "lists": {
         "sections": [
           "Core",
-          "Megatrends",
+          "Satellite",
           "Commodities",
           "Crypto",
           "Cash"
         ],
         "themes": [
           "Index",
-          "Gold",
-          "Silver",
+          "Precious Metals",
+          "Megatrends",
+          "Nuclear",
+          "AI Infra",
+          "AI Services",
           "Cash"
         ],
         "accounts": [
@@ -25,9 +28,12 @@
         ],
         "themeSections": {
           "Index": "Core",
-          "Gold": "Core",
+          "Precious Metals": "Commodities",
           "Cash": "Cash",
-          "Silver": "Core"
+          "Megatrends": "Satellite",
+          "Nuclear": "Satellite",
+          "AI Infra": "Satellite",
+          "AI Services": "Satellite"
         }
       },
       "holdings": [
@@ -44,36 +50,14 @@
           "qty": 2,
           "include": true,
           "avgCost": 329.975,
-          "livePrice": 338.3,
-          "livePriceUpdated": "2025-10-11T10:39:46.862Z",
-          "dayChange": -1.85,
-          "dayChangePercent": -0.5439,
-          "originalLivePrice": 33830,
+          "livePrice": 354.25,
+          "livePriceUpdated": "2025-11-01T11:14:25.255Z",
+          "dayChange": -0.4,
+          "dayChangePercent": -0.1128,
+          "originalLivePrice": 35425,
           "originalCurrency": "GBp",
           "conversionRate": 0.01,
           "targetPct": 12
-        },
-        {
-          "id": "b3e5b2e3-cdb8-459e-a5a4-c22213ea3aa1",
-          "section": "Core",
-          "theme": "Index",
-          "assetType": "Other",
-          "name": "VanEck Global Real Estate UCITS ETF USD",
-          "ticker": "TRET",
-          "exchange": "LSE",
-          "account": "T212",
-          "price": 44.43,
-          "qty": 11,
-          "include": true,
-          "avgCost": 44.43,
-          "livePrice": 0.4333,
-          "livePriceUpdated": "2025-10-11T10:39:46.605Z",
-          "dayChange": -0.0054,
-          "dayChangePercent": -1.2197,
-          "originalLivePrice": 43.33,
-          "originalCurrency": "GBp",
-          "conversionRate": 0.01,
-          "targetPct": 100
         },
         {
           "id": "b2dc0153-8c5d-41be-9122-d6c7a0200fc8",
@@ -88,11 +72,11 @@
           "qty": 19,
           "include": false,
           "avgCost": 37.695,
-          "livePrice": 42.32500076293945,
-          "livePriceUpdated": "2025-10-12T05:20:10.515Z",
-          "dayChange": -1.6649992370605489,
-          "dayChangePercent": -3.7849493909082716,
-          "originalLivePrice": 42.32500076293945,
+          "livePrice": 47.01499938964844,
+          "livePriceUpdated": "2025-11-01T11:14:23.451Z",
+          "dayChange": -0.4400006103515608,
+          "dayChangePercent": -0.9271954701328855,
+          "originalLivePrice": 47.01499938964844,
           "originalCurrency": "GBP",
           "conversionRate": 1,
           "targetPct": 29.166666666666664
@@ -101,7 +85,7 @@
           "id": "dd824f1c-bba6-42cd-8784-7ebc72abdc79",
           "section": "Core",
           "theme": "Index",
-          "assetType": "Other",
+          "assetType": "ETF",
           "name": "WisdomTree Jpn Equity UCIT ETF GBP Hedge",
           "ticker": "DXJP",
           "exchange": "LSE",
@@ -110,11 +94,11 @@
           "qty": 26,
           "include": true,
           "avgCost": 24.8925,
-          "livePrice": 24.7525,
-          "livePriceUpdated": "2025-10-11T10:39:46.781Z",
-          "dayChange": -1.0425,
-          "dayChangePercent": -4.0415,
-          "originalLivePrice": 2475.25,
+          "livePrice": 26.185000000000002,
+          "livePriceUpdated": "2025-11-01T11:14:15.017Z",
+          "dayChange": -0.155,
+          "dayChangePercent": -0.5885,
+          "originalLivePrice": 2618.5,
           "originalCurrency": "GBp",
           "conversionRate": 0.01,
           "targetPct": 12
@@ -122,7 +106,7 @@
         {
           "id": "d6b20c0a-1437-4462-83d8-e339e6650fce",
           "section": "Core",
-          "theme": "Gold",
+          "theme": "Index",
           "assetType": "Other",
           "name": "iShares Physical Metals plc Physical Gold ETC",
           "ticker": "SGLN",
@@ -132,80 +116,14 @@
           "qty": 52,
           "include": true,
           "avgCost": 52.38,
-          "livePrice": 58.35,
-          "livePriceUpdated": "2025-10-12T05:20:10.518Z",
-          "dayChange": -0.2,
-          "dayChangePercent": -0.3415883859948762,
-          "originalLivePrice": 5835,
+          "livePrice": 58.910000000000004,
+          "livePriceUpdated": "2025-11-01T11:14:23.455Z",
+          "dayChange": -0.11,
+          "dayChangePercent": -0.18637749915282956,
+          "originalLivePrice": 5891,
           "originalCurrency": "GBp",
           "conversionRate": 0.01,
           "targetPct": 80
-        },
-        {
-          "id": "56ceb0f8-e6f5-4352-a076-4feed86b6ae7",
-          "section": "Core",
-          "theme": "Index",
-          "assetType": "ETF",
-          "name": "iShares Core FTSE 100 UCITS ETF GBP (Dist)",
-          "ticker": "ISF",
-          "exchange": "LSE",
-          "account": "T212",
-          "price": 0,
-          "qty": 49,
-          "include": true,
-          "targetPct": 8,
-          "avgCost": 0,
-          "livePrice": 9.175999755859376,
-          "livePriceUpdated": "2025-10-12T05:20:10.519Z",
-          "dayChange": -0.072,
-          "dayChangePercent": -0.7785493527316669,
-          "originalLivePrice": 917.5999755859375,
-          "originalCurrency": "GBp",
-          "conversionRate": 0.01
-        },
-        {
-          "id": "b59694e3-b6b8-43d8-a530-aead49fbabd6",
-          "section": "Core",
-          "theme": "Index",
-          "assetType": "ETF",
-          "name": "KraneShares CSI China Internet ETF USD",
-          "ticker": "KWEB",
-          "exchange": "LSE",
-          "account": "T212",
-          "price": 0,
-          "qty": 16,
-          "include": true,
-          "targetPct": 180,
-          "avgCost": 0,
-          "livePrice": 21.8713,
-          "livePriceUpdated": "2025-10-12T13:50:15.850Z",
-          "dayChange": -1.2842,
-          "dayChangePercent": -5.546135300697111,
-          "originalLivePrice": 27.844999313354492,
-          "originalCurrency": "USD",
-          "conversionRate": 0.785464536314098
-        },
-        {
-          "id": "8800fc3b-d885-4117-93f8-7eda4f11ecc6",
-          "section": "Core",
-          "theme": "Index",
-          "assetType": "ETF",
-          "name": "Global X China Electric Vehicle and Battery UCITS ETF",
-          "ticker": "CAUT",
-          "exchange": "LSE",
-          "account": "T212",
-          "price": 0,
-          "qty": 4,
-          "include": true,
-          "targetPct": 45,
-          "avgCost": 0,
-          "livePrice": 22.641,
-          "livePriceUpdated": "2025-10-12T13:53:58.418Z",
-          "dayChange": -1.8969,
-          "dayChangePercent": -7.730471309412758,
-          "originalLivePrice": 28.825000762939453,
-          "originalCurrency": "USD",
-          "conversionRate": 0.785464536314098
         },
         {
           "id": "d9f5ea93-3e29-4525-b62a-121d407e900a",
@@ -221,18 +139,18 @@
           "include": true,
           "targetPct": 8,
           "avgCost": 0,
-          "livePrice": 7.174499988555908,
-          "livePriceUpdated": "2025-10-11T10:39:47.073Z",
-          "dayChange": -0.00300001144409201,
-          "dayChangePercent": -0.041797442620578336,
-          "originalLivePrice": 7.174499988555908,
+          "livePrice": 7.426000118255615,
+          "livePriceUpdated": "2025-11-01T11:14:23.656Z",
+          "dayChange": -0.08449988174438516,
+          "dayChangePercent": -1.1250899639755696,
+          "originalLivePrice": 7.426000118255615,
           "originalCurrency": "GBP",
           "conversionRate": 1
         },
         {
           "id": "7e2b9eca-d554-445a-91d8-bf419b985bd9",
           "section": "Core",
-          "theme": "Gold",
+          "theme": "Index",
           "assetType": "Stock",
           "name": "iShares Physical Silver ETC",
           "ticker": "SSLN",
@@ -243,18 +161,18 @@
           "include": true,
           "targetPct": 20,
           "avgCost": 0,
-          "livePrice": 35.755,
-          "livePriceUpdated": "2025-10-11T10:39:47.074Z",
-          "dayChange": -0.465,
-          "dayChangePercent": -1.2838210933186085,
-          "originalLivePrice": 3575.5,
+          "livePrice": 35.25,
+          "livePriceUpdated": "2025-11-01T11:14:23.679Z",
+          "dayChange": -0.095,
+          "dayChangePercent": -0.268779176686943,
+          "originalLivePrice": 3525,
           "originalCurrency": "GBp",
           "conversionRate": 0.01
         },
         {
           "id": "9ebed40b-2f32-42b1-80f4-0f00d25b6730",
-          "section": "Cash",
-          "theme": "Cash",
+          "section": "Core",
+          "theme": "Index",
           "assetType": "Cash",
           "name": "Pathward Financial, Inc.",
           "ticker": "CASH",
@@ -280,13 +198,13 @@
           "include": true,
           "targetPct": 112.5,
           "avgCost": 0,
-          "livePrice": 35.7838,
-          "livePriceUpdated": "2025-10-12T13:53:59.579Z",
-          "dayChange": -1.3647,
-          "dayChangePercent": -3.673752126261203,
-          "originalLivePrice": 45.557498931884766,
-          "originalCurrency": "USD",
-          "conversionRate": 0.785464536314098
+          "livePrice": 0.45315,
+          "livePriceUpdated": "2025-11-01T11:14:24.881Z",
+          "dayChange": -0.0061,
+          "dayChangePercent": -1.3229,
+          "originalLivePrice": 45.315,
+          "originalCurrency": "GBp",
+          "conversionRate": 0.01
         },
         {
           "id": "441125fd-ff1a-450a-a5d9-925c0fa02968",
@@ -302,13 +220,13 @@
           "include": true,
           "targetPct": 37.5,
           "avgCost": 0,
-          "livePrice": 70.6368,
-          "livePriceUpdated": "2025-10-12T13:53:59.555Z",
-          "dayChange": -0.9583,
-          "dayChangePercent": -1.3384527644807729,
-          "originalLivePrice": 89.93000030517578,
+          "livePrice": 66.0128,
+          "livePriceUpdated": "2025-11-01T11:25:58.106Z",
+          "dayChange": -0.7821,
+          "dayChangePercent": -1.1709076775946152,
+          "originalLivePrice": 83.55999755859375,
           "originalCurrency": "USD",
-          "conversionRate": 0.785464536314098
+          "conversionRate": 0.7900043909300725
         },
         {
           "id": "f4dc228d-826c-48b4-be4c-5ab4c3860ea9",
@@ -323,13 +241,13 @@
           "qty": 3,
           "include": true,
           "avgCost": 0,
-          "livePrice": 142.6404,
-          "livePriceUpdated": "2025-10-12T13:53:59.579Z",
-          "dayChange": -8.428,
-          "dayChangePercent": -5.578949668010392,
-          "originalLivePrice": 181.60000610351562,
+          "livePrice": 176.7793,
+          "livePriceUpdated": "2025-11-01T11:25:58.544Z",
+          "dayChange": -0.1896,
+          "dayChangePercent": -0.10713616692962519,
+          "originalLivePrice": 223.77000427246094,
           "originalCurrency": "USD",
-          "conversionRate": 0.785464536314098
+          "conversionRate": 0.7900043909300725
         },
         {
           "id": "eb82ed76-71d0-45e9-82c0-3e04586d1f50",
@@ -345,13 +263,13 @@
           "include": false,
           "targetPct": 3.583333333333333,
           "avgCost": 0,
-          "livePrice": 65.6963,
-          "livePriceUpdated": "2025-10-12T13:53:59.579Z",
-          "dayChange": -8.3181,
-          "dayChangePercent": -11.238459737187272,
-          "originalLivePrice": 83.63999938964844,
+          "livePrice": 72.3407,
+          "livePriceUpdated": "2025-11-01T11:25:58.103Z",
+          "dayChange": 3.2153,
+          "dayChangePercent": 4.65142822265625,
+          "originalLivePrice": 91.56999969482422,
           "originalCurrency": "USD",
-          "conversionRate": 0.785464536314098
+          "conversionRate": 0.7900043909300725
         },
         {
           "id": "68cc4d79-7c0d-4a8b-8958-d3a3e40df909",
@@ -367,13 +285,13 @@
           "include": false,
           "targetPct": 2.6666666666666665,
           "avgCost": 0,
-          "livePrice": 22.8362,
-          "livePriceUpdated": "2025-10-12T13:53:59.548Z",
-          "dayChange": -0.4731,
-          "dayChangePercent": -2.029523110477692,
-          "originalLivePrice": 26.549999237060547,
+          "livePrice": 27.5644,
+          "livePriceUpdated": "2025-11-01T11:25:59.374Z",
+          "dayChange": 0.2991,
+          "dayChangePercent": 1.0971786833855846,
+          "originalLivePrice": 32.25,
           "originalCurrency": "EUR",
-          "conversionRate": 0.8601205012167554
+          "conversionRate": 0.8547104281487128
         },
         {
           "id": "2efa3160-d452-4ceb-8ec4-adf6558fe87d",
@@ -389,13 +307,13 @@
           "include": true,
           "targetPct": 2.6666666666666665,
           "avgCost": 0,
-          "livePrice": 46.0595,
-          "livePriceUpdated": "2025-10-12T13:53:59.548Z",
-          "dayChange": -0.8171,
-          "dayChangePercent": -1.7431206659439509,
-          "originalLivePrice": 53.54999923706055,
+          "livePrice": 45.727,
+          "livePriceUpdated": "2025-11-01T11:25:59.376Z",
+          "dayChange": -2.3077,
+          "dayChangePercent": -4.804270462633457,
+          "originalLivePrice": 53.5,
           "originalCurrency": "EUR",
-          "conversionRate": 0.8601205012167554
+          "conversionRate": 0.8547104281487128
         },
         {
           "id": "d6ae11b0-cd02-4bb5-9b28-5eea08339210",
@@ -411,13 +329,13 @@
           "include": true,
           "targetPct": 4.166666666666666,
           "avgCost": 0,
-          "livePrice": 120.6749,
-          "livePriceUpdated": "2025-10-12T13:53:59.555Z",
-          "dayChange": -4.3866,
-          "dayChangePercent": -3.5075632381308064,
-          "originalLivePrice": 140.3000030517578,
+          "livePrice": 126.1553,
+          "livePriceUpdated": "2025-11-01T11:25:59.377Z",
+          "dayChange": 0.4701,
+          "dayChangePercent": 0.3740265919861364,
+          "originalLivePrice": 147.60000610351562,
           "originalCurrency": "EUR",
-          "conversionRate": 0.8601205012167554
+          "conversionRate": 0.8547104281487128
         },
         {
           "id": "29fe9e05-9615-4e02-b8fd-934831554465",
@@ -433,13 +351,13 @@
           "include": true,
           "targetPct": 4.166666666666666,
           "avgCost": 0,
-          "livePrice": 87.2651,
-          "livePriceUpdated": "2025-10-12T13:53:59.785Z",
-          "dayChange": -8.8365,
-          "dayChangePercent": -9.194933817637025,
-          "originalLivePrice": 111.0999984741211,
+          "livePrice": 104.249,
+          "livePriceUpdated": "2025-11-01T11:25:59.376Z",
+          "dayChange": -0.5925,
+          "dayChangePercent": -0.5651369799810266,
+          "originalLivePrice": 131.9600067138672,
           "originalCurrency": "USD",
-          "conversionRate": 0.785464536314098
+          "conversionRate": 0.7900043909300725
         },
         {
           "id": "c9b9a526-9937-4434-8cf8-4afd9c8eb731",
@@ -455,13 +373,13 @@
           "include": true,
           "targetPct": 2.083333333333333,
           "avgCost": 0,
-          "livePrice": 121.0401,
-          "livePriceUpdated": "2025-10-12T13:53:59.783Z",
-          "dayChange": -3.244,
-          "dayChangePercent": -2.6101206449373473,
-          "originalLivePrice": 154.10000610351562,
+          "livePrice": 124.5758,
+          "livePriceUpdated": "2025-11-01T11:25:59.377Z",
+          "dayChange": -0.5925,
+          "dayChangePercent": -0.4733637708872429,
+          "originalLivePrice": 157.69000244140625,
           "originalCurrency": "USD",
-          "conversionRate": 0.785464536314098
+          "conversionRate": 0.7900043909300725
         },
         {
           "id": "df083fa1-fcd7-43d4-9563-957dd06f584e",
@@ -477,13 +395,13 @@
           "include": false,
           "targetPct": 6.75,
           "avgCost": 0,
-          "livePrice": 41.5197,
-          "livePriceUpdated": "2025-10-12T13:53:59.783Z",
-          "dayChange": -4.0216,
-          "dayChangePercent": -8.830630199462632,
-          "originalLivePrice": 52.86000061035156,
+          "livePrice": 41.0486,
+          "livePriceUpdated": "2025-11-01T11:25:59.378Z",
+          "dayChange": 1.2561,
+          "dayChangePercent": 3.156639040048956,
+          "originalLivePrice": 51.959999084472656,
           "originalCurrency": "USD",
-          "conversionRate": 0.785464536314098
+          "conversionRate": 0.7900043909300725
         },
         {
           "id": "aea4d2f6-8f1d-4104-90cf-f90c1a1ffd5a",
@@ -499,13 +417,13 @@
           "include": true,
           "targetPct": 6.75,
           "avgCost": 0,
-          "livePrice": 70.197,
-          "livePriceUpdated": "2025-10-12T13:53:59.783Z",
-          "dayChange": -3.3382,
-          "dayChangePercent": -4.539625350798946,
-          "originalLivePrice": 89.37000274658203,
+          "livePrice": 77.9734,
+          "livePriceUpdated": "2025-11-01T11:25:59.378Z",
+          "dayChange": 1.3351,
+          "dayChangePercent": 1.7420852986724897,
+          "originalLivePrice": 98.69999694824219,
           "originalCurrency": "USD",
-          "conversionRate": 0.785464536314098
+          "conversionRate": 0.7900043909300725
         },
         {
           "id": "ca65c381-d4f5-409d-98e1-b6848f291907",
@@ -521,13 +439,13 @@
           "include": true,
           "targetPct": 4.166666666666666,
           "avgCost": 0,
-          "livePrice": 328.0178,
-          "livePriceUpdated": "2025-10-12T13:53:59.784Z",
-          "dayChange": -9.6691,
-          "dayChangePercent": -2.863326816253609,
-          "originalLivePrice": 417.6099853515625,
+          "livePrice": 354.8147,
+          "livePriceUpdated": "2025-11-01T11:25:59.378Z",
+          "dayChange": -3.713,
+          "dayChangePercent": -1.0356290058364332,
+          "originalLivePrice": 449.1300048828125,
           "originalCurrency": "USD",
-          "conversionRate": 0.785464536314098
+          "conversionRate": 0.7900043909300725
         },
         {
           "id": "9b9f4ca0-4b39-4baa-9fbb-cc264d047de3",
@@ -543,13 +461,13 @@
           "include": true,
           "targetPct": 4.166666666666666,
           "avgCost": 0,
-          "livePrice": 289.8992,
-          "livePriceUpdated": "2025-10-12T13:53:59.785Z",
-          "dayChange": -6.3701,
-          "dayChangePercent": -2.1501135840648935,
-          "originalLivePrice": 369.0799865722656,
+          "livePrice": 301.4341,
+          "livePriceUpdated": "2025-11-01T11:25:59.378Z",
+          "dayChange": -1.2087,
+          "dayChangePercent": -0.39938459406568305,
+          "originalLivePrice": 381.55999755859375,
           "originalCurrency": "USD",
-          "conversionRate": 0.785464536314098
+          "conversionRate": 0.7900043909300725
         },
         {
           "id": "2ca53eb9-6d69-4afc-8977-43161d978550",
@@ -565,13 +483,13 @@
           "include": true,
           "targetPct": 2.5,
           "avgCost": 0,
-          "livePrice": 132.7514,
-          "livePriceUpdated": "2025-10-12T13:53:59.785Z",
-          "dayChange": 0.1021,
-          "dayChangePercent": 0.07697448296775346,
-          "originalLivePrice": 169.00999450683594,
+          "livePrice": 152.3602,
+          "livePriceUpdated": "2025-11-01T11:25:59.379Z",
+          "dayChange": -0.711,
+          "dayChangePercent": -0.4644918402396926,
+          "originalLivePrice": 192.86000061035156,
           "originalCurrency": "USD",
-          "conversionRate": 0.785464536314098
+          "conversionRate": 0.7900043909300725
         },
         {
           "id": "b94ffefc-f56a-4894-9e4d-584a7c409687",
@@ -587,13 +505,13 @@
           "include": true,
           "targetPct": 1.6666666666666665,
           "avgCost": 0,
-          "livePrice": 75.3889,
-          "livePriceUpdated": "2025-10-12T13:53:59.783Z",
-          "dayChange": -1.3746,
-          "dayChangePercent": -1.7906442679488492,
-          "originalLivePrice": 95.9800033569336,
+          "livePrice": 90.337,
+          "livePriceUpdated": "2025-11-01T11:26:09.129Z",
+          "dayChange": 7.9,
+          "dayChangePercent": 9.583132222444753,
+          "originalLivePrice": 114.3499984741211,
           "originalCurrency": "USD",
-          "conversionRate": 0.785464536314098
+          "conversionRate": 0.7900043909300725
         },
         {
           "id": "bb29478f-ae77-4390-a05b-6a4f17b86a02",
@@ -609,13 +527,13 @@
           "include": false,
           "targetPct": 3.375,
           "avgCost": 0,
-          "livePrice": 521.3442,
-          "livePriceUpdated": "2025-10-12T13:53:59.785Z",
-          "dayChange": -13.4236,
-          "dayChangePercent": -2.510172842798502,
-          "originalLivePrice": 663.739990234375,
+          "livePrice": 533.8692,
+          "livePriceUpdated": "2025-11-01T11:26:09.130Z",
+          "dayChange": 21.9463,
+          "dayChangePercent": 4.287041558159722,
+          "originalLivePrice": 675.780029296875,
           "originalCurrency": "USD",
-          "conversionRate": 0.785464536314098
+          "conversionRate": 0.7900043909300725
         },
         {
           "id": "f73504fc-3268-4995-8f0f-73579cc6bc10",
@@ -631,13 +549,13 @@
           "include": false,
           "targetPct": 4.166666666666666,
           "avgCost": 0,
-          "livePrice": 103.7442,
-          "livePriceUpdated": "2025-10-12T13:53:59.792Z",
-          "dayChange": -10.2974,
-          "dayChangePercent": -9.029546228352718,
-          "originalLivePrice": 132.0800018310547,
+          "livePrice": 143.5912,
+          "livePriceUpdated": "2025-11-01T11:26:00.374Z",
+          "dayChange": 3.8552,
+          "dayChangePercent": 2.7589295040908763,
+          "originalLivePrice": 181.75999450683594,
           "originalCurrency": "USD",
-          "conversionRate": 0.785464536314098
+          "conversionRate": 0.7900043909300725
         },
         {
           "id": "5d6a26fe-fd28-47ad-ae1f-44e353c9f80a",
@@ -653,11 +571,11 @@
           "include": true,
           "targetPct": 20,
           "avgCost": 0,
-          "livePrice": 0.8290000152587891,
-          "livePriceUpdated": "2025-10-11T10:39:47.553Z",
-          "dayChange": -0.006,
-          "dayChangePercent": -0.7185610468516093,
-          "originalLivePrice": 82.9000015258789,
+          "livePrice": 0.8908000183105469,
+          "livePriceUpdated": "2025-11-01T11:14:31.756Z",
+          "dayChange": 0.0026,
+          "dayChangePercent": 0.29272892485329244,
+          "originalLivePrice": 89.08000183105469,
           "originalCurrency": "GBp",
           "conversionRate": 0.01
         },
@@ -674,13 +592,13 @@
           "qty": 13,
           "include": true,
           "avgCost": 0,
-          "livePrice": 13.3922,
-          "livePriceUpdated": "2025-10-12T13:54:00.036Z",
-          "dayChange": -1.1468,
-          "dayChangePercent": -7.887632430791218,
-          "originalLivePrice": 17.049999237060547,
+          "livePrice": 12.5295,
+          "livePriceUpdated": "2025-11-01T11:26:00.375Z",
+          "dayChange": -0.0079,
+          "dayChangePercent": -0.06301413561911232,
+          "originalLivePrice": 15.859999656677246,
           "originalCurrency": "USD",
-          "conversionRate": 0.785464536314098
+          "conversionRate": 0.7900043909300725
         },
         {
           "id": "0485e56c-7f5e-41dd-b880-aa6487d1bc92",
@@ -695,13 +613,13 @@
           "qty": 0,
           "include": true,
           "avgCost": 0,
-          "livePrice": 42.1952,
-          "livePriceUpdated": "2025-10-12T13:54:00.035Z",
-          "dayChange": -1.9715,
-          "dayChangePercent": -4.4638071835263595,
-          "originalLivePrice": 53.720001220703125,
+          "livePrice": 50.2838,
+          "livePriceUpdated": "2025-11-01T11:26:00.375Z",
+          "dayChange": 0.0632,
+          "dayChangePercent": 0.12584792493142358,
+          "originalLivePrice": 63.650001525878906,
           "originalCurrency": "USD",
-          "conversionRate": 0.785464536314098
+          "conversionRate": 0.7900043909300725
         },
         {
           "id": "9166796d-e076-469f-a112-fbd745dc2c48",
@@ -716,13 +634,13 @@
           "qty": 0,
           "include": true,
           "avgCost": 0,
-          "livePrice": 698.0502,
-          "livePriceUpdated": "2025-10-12T13:54:00.035Z",
-          "dayChange": -22.967,
-          "dayChangePercent": -3.18535628600074,
-          "originalLivePrice": 888.7100219726562,
+          "livePrice": 726.2353,
+          "livePriceUpdated": "2025-11-01T11:26:09.191Z",
+          "dayChange": -12.166,
+          "dayChangePercent": -1.6476195813674144,
+          "originalLivePrice": 919.280029296875,
           "originalCurrency": "USD",
-          "conversionRate": 0.785464536314098
+          "conversionRate": 0.7900043909300725
         }
       ],
       "settings": {
@@ -773,12 +691,20 @@
             "percent": 30
           },
           "Cash": {
-            "amount": 2775,
-            "percent": 15
+            "amount": 0,
+            "percent": 0
           },
           "Crypto": {
             "amount": 925,
             "percent": 5
+          },
+          "Commodities": {
+            "amount": 4625,
+            "percent": 25
+          },
+          "Satellite": {
+            "amount": 5550,
+            "percent": 30
           }
         },
         "accounts": {},
@@ -788,20 +714,34 @@
             "percent": 30,
             "percentOfSection": 100
           },
-          "Gold": {
-            "amount": 5000,
-            "percent": 25,
+          "Precious Metals": {
             "percentOfSection": 100
           },
-          "Cash": {
-            "amount": 1000,
-            "percent": 5,
-            "percentOfSection": 0
+          "Megatrends": {
+            "amount": 3330,
+            "percent": 18,
+            "percentOfSection": 60
           },
-          "Silver": {
-            "amount": 740,
-            "percent": 4,
+          "Nuclear": {
+            "amount": 555,
+            "percent": 3,
+            "percentOfSection": 10
+          },
+          "AI Infra": {
+            "amount": 555,
+            "percent": 3,
+            "percentOfSection": 10
+          },
+          "AI Services": {
+            "amount": 555,
+            "percent": 3,
+            "percentOfSection": 10
+          },
+          "Commodities": {
             "percentOfSection": 25
+          },
+          "Satellite": {
+            "percentOfSection": 30
           }
         }
       },
