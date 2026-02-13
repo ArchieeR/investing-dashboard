@@ -47,8 +47,9 @@ ui-debug.log
 # Archive (local reference only)
 _archive/
 
-# Legacy directory name (dev server may recreate)
+# Legacy directory names (dev server may recreate)
 Invorm/
+invest/
 
 # Antigravity symlinks (machine-specific absolute paths)
 .agent/

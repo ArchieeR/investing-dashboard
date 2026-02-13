@@ -8,7 +8,7 @@ Portfolio intelligence platform for UK investors. Codename: "Invorm" (temporary)
 
 ## Repository Structure
 
-- `invest/` - Next.js 16 application (main codebase) - has its own `.claude/` and `.agent/` with domain-specific skills
+- `dashboard/` - Next.js 16 application (main codebase) - has its own `.claude/` and `.agent/` with domain-specific skills
 - `_archive/` - Legacy reference code and UI mockups (local only, gitignored)
 - `docs/` - Synthesis docs, planning, architecture
 
@@ -34,7 +34,7 @@ Portfolio intelligence platform for UK investors. Codename: "Invorm" (temporary)
 
 - Vitest for unit tests
 - Co-located test files (`*.test.ts` next to source)
-- Run: `npm test` in `invest/`
+- Run: `npm test` in `dashboard/`
 
 ## CCPM Workflow
 
@@ -45,5 +45,5 @@ Portfolio intelligence platform for UK investors. Codename: "Invorm" (temporary)
 
 ## Shared Skills
 
-Skills in `invest/.agent/skills/` are symlinked to `invest/.claude/skills/` (shared with Antigravity).
+Skills in `dashboard/.agent/skills/` are symlinked to `dashboard/.claude/skills/` (shared with Antigravity).
 Global skills in `~/.claude/skills/` include: firebase-development, genkit-vertex-setup, vercel-troubleshooting, claude-manage, ag-context, find-skills.
