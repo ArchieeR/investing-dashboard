@@ -43,3 +43,16 @@ ui-debug.log
 # Temp
 *.tmp
 .scratch/
+
+# Archive (local reference only)
+_archive/
+
+# Legacy directory name (dev server may recreate)
+Invorm/
+
+# Antigravity symlinks (machine-specific absolute paths)
+.agent/
+
+# Claude local config
+.claude/settings.json
+.claude/settings.local.json
