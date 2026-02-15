@@ -52,7 +52,7 @@ export async function getPortfolioAssets(
 
   // Batch read from Firestore (max 10 per getAll call)
   const refs = tickers.map((t) => adminDb.collection(ASSETS_COLLECTION).doc(t));
-  const chunks: FirebaseFirestore.DocumentReference[][] = [];
+  const chunks: (typeof refs)[] = [];
   for (let i = 0; i < refs.length; i += 10) {
     chunks.push(refs.slice(i, i + 10));
   }
