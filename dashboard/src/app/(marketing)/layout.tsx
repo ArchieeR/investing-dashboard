@@ -1,9 +1,9 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-    title: "Portfolio Intelligence, Engineered",
+    title: "Invormed | Portfolio Intelligence, Engineered",
     description:
-        "Swiss-precision portfolio tracking. Aggregate holdings, see through ETFs, and make data-driven decisions with institutional-grade analytics.",
+        "Swiss-precision portfolio tracking by Invormed. Aggregate holdings, see through ETFs, and make data-driven decisions with institutional-grade analytics.",
 }
 
 export default function MarketingLayout({

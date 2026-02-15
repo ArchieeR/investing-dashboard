@@ -29,12 +29,12 @@ function FeaturePlayground() {
                                 className="text-2xl lg:text-3xl font-bold tracking-tight text-[#E4E4E7]"
                                 style={{ fontFamily: font.headline }}
                             >
-                                The Playground
+                                Portfolio Playground
                             </h3>
                             <p className="mt-4 text-[#A1A1AA] leading-relaxed" style={{ fontFamily: font.body }}>
-                                Every holding in one place. Sort, filter, and organise across all your
-                                accounts. See drift against target allocations instantly. Your portfolio
-                                as data, not fragments.
+                                Experiment with your portfolio before you commit. Simulate trades,
+                                rebalance allocations, and see the impact on your exposure — all
+                                without risking a penny.
                             </p>
                         </div>
                         <div className="col-span-12 lg:col-span-7 lg:col-start-6">

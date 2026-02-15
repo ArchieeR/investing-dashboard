@@ -45,12 +45,12 @@ export const useAssetSearch = (activeTab: string = 'all') => {
                 // Map to Asset interface
                 const mapped: Asset[] = data.map(d => ({
                     ticker: d.ticker,
-                    type: (['ETF', 'Stock', 'Crypto', 'Index'].includes(d.type) ? d.type : 'Stock') as AssetType,
+                    type: 'Stock' as AssetType,
                     name: d.name,
                     issuer: d.issuer || 'Unknown',
                     region: d.region || 'US',
                     sector: d.sector || 'General',
-                    description: d.name // Placeholder
+                    description: d.name,
                 }));
                 setCurrentResults(mapped);
             } catch (err) {

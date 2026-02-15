@@ -1,7 +1,7 @@
 // ─── Swiss Precision Design Tokens ───────────────────────────────────────────
 // Shared across all marketing components. See .claude/prds/ui-design-system.md
 
-export const PRODUCT_NAME = "Invorm"
+export const PRODUCT_NAME = "invormed"
 
 export const font = {
     headline: "Space Grotesk, sans-serif",

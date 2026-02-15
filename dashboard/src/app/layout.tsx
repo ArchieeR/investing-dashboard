@@ -1,13 +1,21 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
-const inter = Inter({ subsets: ["latin"] });
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
 
 export const metadata: Metadata = {
-  title: "Invest | The Second Brain for Investors",
-  description: "Professional-grade portfolio workspace with AI intelligence.",
+  title: "Invormed | The Second Brain for Investors",
+  description: "Professional-grade portfolio intelligence with AI-powered analytics.",
 };
 
 export default function RootLayout({
@@ -17,7 +25,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased`}>
+      <body
+        className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} font-sans antialiased`}
+        style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

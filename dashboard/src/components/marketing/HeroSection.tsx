@@ -142,15 +142,24 @@ export function HeroSection() {
                             className="text-5xl lg:text-6xl font-bold leading-[1.05] tracking-tight text-[#E4E4E7]"
                             style={{ fontFamily: font.headline }}
                         >
-                            Portfolio intelligence,
+                            All of your investments
                             <br />
-                            engineered.
+                            in one place.
                         </motion.h1>
                         <motion.p
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ duration: 0.6, delay: 0.15 }}
-                            className="mt-6 text-lg text-[#A1A1AA] max-w-md leading-relaxed"
+                            className="mt-6 text-xl font-semibold text-[#E4E4E7] max-w-md"
+                            style={{ fontFamily: font.body }}
+                        >
+                            Become an informed investor today.
+                        </motion.p>
+                        <motion.p
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.6, delay: 0.25 }}
+                            className="mt-3 text-base text-[#A1A1AA] max-w-md leading-relaxed"
                             style={{ fontFamily: font.body }}
                         >
                             Aggregate every holding. See through every ETF. Make decisions

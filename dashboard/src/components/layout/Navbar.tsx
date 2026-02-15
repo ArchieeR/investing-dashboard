@@ -19,8 +19,8 @@ export function Navbar() {
             <div className="container flex h-14 max-w-screen-2xl items-center mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="mr-4 flex">
                     <Link href="/" className="mr-6 flex items-center space-x-2">
-                        <span className="hidden font-bold sm:inline-block text-lg bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
-                            Invorm
+                        <span className="hidden font-bold sm:inline-block text-lg">
+                            <span className="text-[#FF6B00]">inv</span><span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">ormed</span>
                         </span>
                     </Link>
                     <nav className="flex items-center gap-4 text-sm font-medium xl:gap-6">

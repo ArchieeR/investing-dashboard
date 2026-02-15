@@ -80,7 +80,7 @@ export function Footer() {
                 </div>
                 <div className="mt-12 pt-8 border-t border-[#27272A] flex flex-col md:flex-row items-center justify-between gap-4">
                     <p className="text-xs text-[#52525B]" style={{ fontFamily: font.mono }}>
-                        &copy; {new Date().getFullYear()} {PRODUCT_NAME}. All rights reserved.
+                        &copy; {new Date().getFullYear()} <span style={{ color: "#FF6B00" }}>inv</span>ormed. All rights reserved.
                     </p>
                     <p className="text-xs text-[#52525B]" style={{ fontFamily: font.mono }}>
                         Built in London, UK

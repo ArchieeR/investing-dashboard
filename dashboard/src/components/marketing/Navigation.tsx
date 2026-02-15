@@ -18,7 +18,7 @@ export function Navigation() {
                     className="text-lg font-bold tracking-tight text-[#E4E4E7]"
                     style={{ fontFamily: font.headline }}
                 >
-                    {PRODUCT_NAME}
+                    <span><span style={{ color: "#FF6B00" }}>inv</span>ormed</span>
                 </Link>
                 <div className="flex items-center gap-8">
                     {links.map((link) => (

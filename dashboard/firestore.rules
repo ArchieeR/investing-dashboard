@@ -1,0 +1,105 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ==========================================
+    // HELPER FUNCTIONS
+    // ==========================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && resource.data.uid == request.auth.uid;
+    }
+
+    // ==========================================
+    // USERS COLLECTION
+    // ==========================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
+    }
+
+    // ==========================================
+    // PORTFOLIOS COLLECTION (with subcollections)
+    // ==========================================
+
+    match /portfolios/{portfolioId} {
+      allow read: if isDocOwner();
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+      allow update: if isDocOwner();
+      allow delete: if isDocOwner();
+
+      // Holdings subcollection
+      match /holdings/{holdingId} {
+        allow read: if isAuthenticated()
+          && get(/databases/$(database)/documents/portfolios/$(portfolioId)).data.uid == request.auth.uid;
+        allow write: if isAuthenticated()
+          && get(/databases/$(database)/documents/portfolios/$(portfolioId)).data.uid == request.auth.uid;
+      }
+
+      // Trades subcollection
+      match /trades/{tradeId} {
+        allow read: if isAuthenticated()
+          && get(/databases/$(database)/documents/portfolios/$(portfolioId)).data.uid == request.auth.uid;
+        allow write: if isAuthenticated()
+          && get(/databases/$(database)/documents/portfolios/$(portfolioId)).data.uid == request.auth.uid;
+      }
+    }
+
+    // ==========================================
+    // WATCHLISTS COLLECTION
+    // ==========================================
+
+    match /watchlists/{watchlistId} {
+      allow read: if isDocOwner();
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+      allow update: if isDocOwner();
+      allow delete: if isDocOwner();
+    }
+
+    // ==========================================
+    // READ-ONLY COLLECTIONS (authenticated)
+    // ==========================================
+
+    match /instruments/{instrumentId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Server-only writes
+    }
+
+    match /news/{newsId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Server-only writes
+    }
+
+    match /events/{eventId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Server-only writes
+    }
+
+    // ==========================================
+    // ASSETS COLLECTION (with subcollections)
+    // ==========================================
+
+    match /assets/{symbol} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Server-only writes
+
+      // ETF holdings subcollection
+      match /holdings/{holdingId} {
+        allow read: if isAuthenticated();
+        allow write: if false; // Server-only writes
+      }
+    }
+  }
+}
