@@ -211,7 +211,8 @@ export async function populateETFHoldings(
           .collection(HOLDINGS_SUBCOLLECTION)
           .get();
         if (!snap.empty) {
-          return snap.docs.map((d: FirebaseFirestore.QueryDocumentSnapshot) => d.data() as ETFHoldingRecord);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          return snap.docs.map((d: any) => d.data() as ETFHoldingRecord);
         }
       }
     }
